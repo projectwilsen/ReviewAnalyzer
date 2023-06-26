@@ -10,13 +10,13 @@
     <link rel = "stylesheet" href = "https://unicons.iconscout.com/release/v4.0.0/css/line.css" />
 </head>
 <body>
-    <section>
+    <section class = "home">
         <header>
             <h2>GW</h2>
             <nav class = "navigation">
                 <a href = "#">Home</a></li>
                 <a href = "#">About</a></li>
-                <button class = "btnLogin-popup">Login</button>
+                <button class = "btnLogin-popup" id = "form-open"> Login</button>
             </nav>
         </header>
         <div class = "content">
@@ -25,7 +25,7 @@
                 <p>Analyze video performance, track engagement, and <br> optimize your content strategy with confidence.</p>
                 <form action = "getoutput" method = "POST" id = "form">
                 {% csrf_token %}
-                    <br><input type = "text" name = "videoid" placeholder = "Paste your video id here" value = "{{videoid}}">
+                    <br><input type = "text" name = "videoid" placeholder = "Paste your youtube video url here" value = "{{videoid}}">
                     <input type = "submit">        
                 </form>
             </div>
@@ -67,9 +67,38 @@
                     </div>
                 <form>
             </div>
+
+            <div class = "form signup_form">
+                <form action  = "#">
+
+                    <h2>Signup</h2>
+
+                    <div class = "input_box">
+                        <input type="email" placeholder="Enter your email" required/>
+                        <i class = "uil uil-envelope-alt email"></i>
+                    </div>
+
+                    <div class = "input_box">
+                        <input type="password" placeholder="Enter your password" required/>
+                        <i class = "uil uil-lock password"></i>
+                        <i class = "uil uil-eye-slash pw_hide"></i>
+                    </div>
+
+                    <div class = "input_box">
+                        <input type="password" placeholder="Confirm your password" required/>
+                        <i class = "uil uil-lock password"></i>
+                        <i class = "uil uil-eye-slash pw_hide"></i>
+                    </div>
+
+                    <button class ="button">Signup Now</button>
+
+                    <div class="login_signup"> Already have an account? 
+                        <a href="#" id = "login">Login</a>
+                    </div>
+                <form>
+            </div>
         </div>
     </section> 
-    <section>
-    </section>
+    <script src= "{% static 'script.js' %}"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib import messages
 from urllib import response
@@ -9,6 +9,7 @@ import os
 import io
 import csv
 from dotenv import load_dotenv
+from urllib.parse import urlparse, parse_qs
 
 load_dotenv()
 
@@ -28,11 +29,16 @@ def index(request):
 
 def getoutput(request):
     if request.method == "POST":
-        videoid = request.POST["videoid"]
+        url = request.POST["videoid"]
+        parsed_url = urlparse(url)
+        query_params = parse_qs(parsed_url.query)
+
+        videoid = query_params.get('v', [''])[0]
+
         # youtube = build("youtube", "v3", developerKey=request.POST["youtubeapikey"])
         pdf_content = generate_pdf(youtube, videoid)
         send_email_with_attachment(videoid,sender_email, sender_password, recipient_email, subject, message, pdf_content)
         # messages.success(request, "Report sent successfully!")
-        return render(request, 'index.html')
+        return redirect('index')
     else:
         return render(request,"index.html")

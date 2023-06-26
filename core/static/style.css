@@ -7,7 +7,7 @@
     font-family: 'Poppins', sans-serif;
     overflow-y:hidden; /* supaya ga ada scroll bar */
 }
-section
+.home
 {
     position: relative;
     width: 100%;
@@ -18,6 +18,7 @@ section
     align-items: center;
     background: #fff;
 }
+
 header
 {
     position: absolute;
@@ -144,18 +145,58 @@ form{
     cursor: pointer;
 }
 
+.home::before{
+    content: '';
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0,0,0,0.3);
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.5s ease;
+    backdrop-filter: blur(10px);
+}
+
+.home.show::before{
+    opacity:1;
+    pointer-events: auto;
+}
+
 .form_container {
     position: absolute;
     max-width: 320px;
     width: 100%;
     top:50%;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%) scale(1.2);
     z-index: 101;
     background: #fff;
     padding: 25px;
     border-radius: 12px;
     box-shadow: rgba(0,0,0,0.1);
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.4s ease-in-out;
+}
+
+.home.show .form_container{
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, -50%) scale(1);
+
+}
+
+.signup_form{
+    display: none;
+}
+
+.form_container.active .signup_form{
+    display: block;
+}
+
+.form_container.active .login_form{
+    display: none;
 }
 
 .form_close{
@@ -218,6 +259,7 @@ form{
 .input_box i.pw_hide{
     right: 0;
     font-size:18px;
+    cursor: pointer;
 }
 
 .option_field{
@@ -227,12 +269,13 @@ form{
     justify-content: space-between;
 }
 
-.form_container a{
+.option_field a{
+    margin-left: 40px;
     color:#A93E38;
     font-size: 12px;
 }
 
-.form_container a:hover{
+.option_field a:hover{
     text-decoration: underline;
 }
 
@@ -268,6 +311,9 @@ form{
     margin-top: 15px;
 }
 
+.login_signup a{
+    color:#A93E38;
+}
 
 
 
