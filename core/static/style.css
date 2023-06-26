@@ -1,0 +1,158 @@
+@import url('https://fonts.googleapis.com/css?family=Poppins: 200,300,400,500,600,700,800,900&display=swap');
+*
+{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+    overflow-y:hidden; /* supaya ga ada scroll bar */
+}
+section
+{
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    padding: 100px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+}
+header
+{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 20px 100px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.navigation a{
+    position: relative;
+    font-size: 1em;
+    color: #333;
+    text-decoration: none;
+    margin-left: 40px;
+}
+.navigation a::after{
+    content: '';
+    position:absolute;
+    left:0;
+    bottom:-6px;
+    width: 100%;
+    height: 2px;
+    background: #333;
+    border-radius: 2px;
+    transform-origin: right;
+    transform: scaleX(0);
+    transition: transform .5s;
+}
+.navigation a:hover::after{
+    transform: scaleX(1);
+}
+
+.navigation .btnLogin-popup
+{
+    width: 100px;
+    height: 35px;
+    background: transparent;
+    border: 2px solid #333;
+    outline: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1em;
+    color: #333;
+    font-weight: 400;
+    margin-left: 40px;
+    transition: .5s;
+}
+.navigation .btnLogin-popup:hover{
+    background: #333;
+    color:#fff
+}
+.content
+{
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.content .textBox
+{
+    position: relative;
+    max-width: 600px;
+}
+.content .textBox h2
+{
+    color: black;
+    font-size: 4em;
+    line-height: 1.4em;
+    font-weight: 500;
+}
+.content .textBox h2 span
+{
+    color: #A93E38;
+    font-size: 1.1em;
+    font-weight: 900;
+}
+.content .textBox p
+{
+    color: #333;
+}
+.content .imgBox
+{
+    width: 510px;
+    height: 510px;
+    display: flex; 
+    justify-content: flex-end;
+}
+form{
+    margin:1px;
+    padding:1px;
+}
+.content .textBox .form .input
+{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-size: 18px;
+}
+
+#form input[type="text"] {
+    width: 400px;
+    padding: 10px;
+    margin-right: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+#form input[type="submit"] {
+    background-color: #A93E38;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.form_container {
+    position: absolute;
+    top:50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 101;
+    background: black;
+}
+
+
+
+

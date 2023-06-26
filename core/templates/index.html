@@ -1,0 +1,48 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Youtube Performance Analyzer</title>
+    <link href= "{% static 'style.css' %}" rel="stylesheet" type="text/css" /> 
+</head>
+<body>
+    <section>
+        <header>
+            <h2>GW</h2>
+            <nav class = "navigation">
+                <a href = "#">Home</a></li>
+                <a href = "#">About</a></li>
+                <button class = "btnLogin-popup">Login</button>
+            </nav>
+        </header>
+        <div class = "content">
+            <div class = "textBox">
+                <h2>Gain Insights from<br><span>YouTube Video</span><br>Performance!</h2>
+                <p>Analyze video performance, track engagement, and <br> optimize your content strategy with confidence.</p>
+                <form action = "getoutput" method = "POST" id = "form">
+                {% csrf_token %}
+                    <br><input type = "text" name = "videoid" placeholder = "Paste your video id here" value = "{{videoid}}">
+                    <input type = "submit">        
+                </form>
+            </div>
+            <div class = "imgBox">
+                <img src = "{% static 'img1.png' %}" class = "youtube">
+            </div>
+        </div>
+    </section> 
+    {% comment %} form login {% endcomment %}
+    <section>
+        <div class = "form_container">
+            <i class = "uil uil-times"></i>
+            <div class = "form login_form">
+                <form action  = "#">
+                    <h2>Login</h2>
+                <form>
+            </div>
+        </div>
+    </section>
+</body>
+</html>
