@@ -7,6 +7,7 @@
     font-family: 'Poppins', sans-serif;
     overflow-y:hidden; /* supaya ga ada scroll bar */
 }
+
 .home
 {
     position: relative;
@@ -30,49 +31,58 @@ header
     justify-content: space-between;
     align-items: center;
 }
-.navigation a{
+
+.navigation a {
     position: relative;
     font-size: 1em;
     color: #333;
     text-decoration: none;
     margin-left: 40px;
+    overflow: hidden; /* Add overflow property */
 }
-.navigation a::after{
-    content: '';
-    position:absolute;
-    left:0;
-    bottom:-6px;
+
+.navigation a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -2px; 
     width: 100%;
     height: 2px;
     background: #333;
     border-radius: 2px;
-    transform-origin: right;
+    transform-origin: left; 
     transform: scaleX(0);
-    transition: transform .5s;
+    transition: transform 0.5s;
 }
-.navigation a:hover::after{
+
+.navigation a:hover,
+.navigation a:focus {
+    color: #A93E38; /* Change link color on hover/focus */
+}
+
+.navigation a:hover::after {
     transform: scaleX(1);
 }
 
-.navigation .btnLogin-popup
-{
-    width: 100px;
-    height: 35px;
-    background: transparent;
+.navigation .btnLogout {
+    display: inline-flex;
+    padding: 5px 20px;
+    margin-left: 35px; 
     border: 2px solid #333;
-    outline: none;
     border-radius: 6px;
-    cursor: pointer;
-    font-size: 1em;
+    background: transparent;
     color: #333;
+    font-size: 1em;
     font-weight: 400;
-    margin-left: 40px;
-    transition: .5s;
+    text-decoration: none;
+    transition: background-color 0.3s, color 0.3s, transform 0.3s;
 }
-.navigation .btnLogin-popup:hover{
-    background: #333;
-    color:#fff
+
+.navigation .btnLogout:hover {
+    background-color: #333;
+    color: #fff;
 }
+
 .content
 {
     position: relative;
@@ -131,7 +141,7 @@ form{
     padding: 10px;
     margin-right: 10px;
     border: 1px solid #ccc;
-    border-radius: 5px;
+    border-radius: 6px;
     font-size: 16px;
 }
 
@@ -140,73 +150,30 @@ form{
     color: white;
     padding: 10px 20px;
     border: none;
-    border-radius: 5px;
+    border-radius: 6px;
     font-size: 16px;
     cursor: pointer;
+    transition: background-color 0.3s, color 0.3s, transform 0.3s;
 }
 
-.home::before{
-    content: '';
-    position: absolute;
-    height: 100%;
-    width: 100%;
-    background-color: rgba(0,0,0,0.3);
-    z-index: 100;
-    opacity: 0;
-    pointer-events: none;
-    transition: all 0.5s ease;
-    backdrop-filter: blur(10px);
-}
-
-.home.show::before{
-    opacity:1;
-    pointer-events: auto;
+#form input[type="submit"]:hover {
+    background-color: black;
+    color: #fff;
 }
 
 .form_container {
     position: absolute;
     max-width: 320px;
     width: 100%;
-    top:50%;
+    top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%) scale(1.2);
+    transform: translate(-50%, -50%) scale(1);
     z-index: 101;
     background: #fff;
     padding: 25px;
     border-radius: 12px;
-    box-shadow: rgba(0,0,0,0.1);
-    opacity: 0;
-    pointer-events: none;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
     transition: 0.4s ease-in-out;
-}
-
-.home.show .form_container{
-    opacity: 1;
-    pointer-events: auto;
-    transform: translate(-50%, -50%) scale(1);
-
-}
-
-.signup_form{
-    display: none;
-}
-
-.form_container.active .signup_form{
-    display: block;
-}
-
-.form_container.active .login_form{
-    display: none;
-}
-
-.form_close{
-    position:absolute;
-    top:10px;
-    right:20px;
-    color: #333;
-    font-size: 22px;
-    opacity: 0.7;
-    cursor: pointer;
 }
 
 .form_container h2{
@@ -245,6 +212,8 @@ form{
 }
 
 .input_box i.email,
+.input_box i.username,
+.input_box i.youtube,
 .input_box i.password{
     left: 0;
     color: #333;
@@ -252,6 +221,8 @@ form{
 }
 
 .input_box input:focus ~ i.email,
+.input_box input:focus ~ i.username,
+.input_box input:focus ~ i.youtube,
 .input_box input:focus ~ i.password{
     color: #A93E38;
 }
@@ -262,47 +233,13 @@ form{
     cursor: pointer;
 }
 
-.option_field{
-    margin-top: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.option_field a{
-    margin-left: 40px;
-    color:#A93E38;
-    font-size: 12px;
-}
-
-.option_field a:hover{
-    text-decoration: underline;
-}
-
-.checkbox{
-    display: flex;
-    column-gap: 8px;
-    white-space: nowrap;
-    font-size: 12px;
-}
-
-.checkbox input{
-    accent-color: #A93e38;
-}
-
-.checkbox label{
-    font-size: 12px;
-    cursor: pointer;
-    user-select: none;
-    color:#333
-}
-
 .form_container .button{
     background: #A93E38;
     margin-top: 30px;
     width: 100%;
     padding: 10px 0;
     border-radius: 10px;
+    cursor: pointer;
 }
 
 .login_signup{
@@ -314,6 +251,3 @@ form{
 .login_signup a{
     color:#A93E38;
 }
-
-
-
