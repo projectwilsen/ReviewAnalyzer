@@ -89,8 +89,15 @@ def getoutput(request):
 
         videoid = query_params.get('v', [''])[0]
 
-        key = ApiKey.objects.get(user = request.user)
-        youtube = build("youtube", "v3", developerKey= key.youtube_api_key)
+        try:
+            key = ApiKey.objects.get(user = request.user)
+            youtubeapikey = key.youtube_api_key
+            if youtubeapikey == None:
+                youtubeapikey = os.environ.get('youtubeapikey')
+        except:
+            youtubeapikey = os.environ.get('youtubeapikey')
+
+        youtube = build("youtube", "v3", developerKey= youtubeapikey)
         pdf_content = generate_pdf(youtube, videoid)
 
         username = request.user.username
