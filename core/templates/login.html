@@ -4,6 +4,13 @@
 
 
 {% block content %}
+
+    {% for message in messages %}
+        <div class="message {{ message.tags }}">
+            {{ message }}
+        </div>
+    {% endfor %}
+
     <section class = "home">
         <div class = "form_container">
             <div class = "form login_form">

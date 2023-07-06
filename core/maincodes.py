@@ -1,24 +1,30 @@
 from urllib import response
 from googleapiclient.discovery import build
+
 from textblob import TextBlob
 import nltk
-nltk.download('punkt')
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
+
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
-from langchain.prompts import PromptTemplate
-from langchain.chat_models import ChatOpenAI
+
+from langchain import HuggingFaceHub
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.chains import LLMChain
+from langchain.chains.summarize import load_summarize_chain
+import textwrap
+from transformers import pipeline
+
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email import encoders
+
 from io import BytesIO
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 
 load_dotenv()
 
@@ -172,9 +178,11 @@ def sentiment_barchart(df):
     plt.ylabel('Count')
     plt.title('Sentiment Analysis')
 
+    for i, count in enumerate(sentiment_counts.values):
+        plt.text(i, count, str(count), ha='center', va='top')
+
     temp_image = 'temp_plot.png'  # Temporary image file name
     plt.savefig(temp_image)
-    plt.close()  # Close the plot without displaying it
 
     return temp_image
 
@@ -199,99 +207,50 @@ def draw_text_with_wrap(canvas, text, x, y, width):
 
     return y
 
+# load_dotenv(find_dotenv())
+# HUGGINGFACEHUB_API_TOKEN = os.environ["huggingfacehub_api_token"]
 
-def generate_result(youtube, videoId):
-    path = 'E:\\projectsupertype\\Youtube\\output\\output.pdf' #ganti jadi nama tok, trus pakek global
-    c = canvas.Canvas(path, pagesize=letter)
+# repo_id = "tiiuae/falcon-7b-instruct"  
+# falcon_llm = HuggingFaceHub(
+#     repo_id=repo_id, model_kwargs={"temperature": 0.5, "max_new_tokens": 425}
+# )
 
-    # Set the initial y-coordinate for writing the text
-    y = 700
+# rm = 'deepset/roberta-base-squad2'
 
-    # Write the video title as the sub title
-    header = "Youtube Video Performance Analysis : {}".format(videoId)
-    c.setFont('Helvetica-Bold', 18)
-    c.drawString(50, y, header)
-    y -= 30
-    c.setFont('Helvetica-Bold', 14)
-    sub_title_1 = "Statistic"
-    c.drawString(50, y, sub_title_1)
-    c.setFont('Helvetica', 12)
-    y -= 30
+# question_answerer = pipeline("question-answering", model=rm)
 
-    # Get video stats
-    stats = video_stats(youtube, videoId)
+def summary_of_comments(df,things = 'positive'):
+    filtered_comment = df[df['sentiment'] == things]
+    comment_text = ';'.join(filtered_comment['comment_text']).replace('\n','')
 
-    # Write specific video stats to the PDF
-    stat_labels = {'title': 'Title', 'viewCount': 'Total View',
-                   'likeCount': 'Total Like', 'commentCount': 'Total Comment',
-                   'favoriteCount': 'Total Favorite'}
-    for key, label in stat_labels.items():
-        value = stats.get(key, '')
-        text = '{}: {}'.format(label, value)
-        c.drawString(50, y, text)
-        y -= 15
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=500)
+    comment_doc = text_splitter.create_documents([comment_text])
 
-    # Get comment data and generate sentiment barchart
-    df = comment_threads(youtube, videoID=videoId)
-    temp_image = sentiment_barchart(df)
+    output = {}
+    for i in comment_doc:
+        result = question_answerer(question= f"What {things} things does the user/audience feel?", context= i.page_content) #str(i)
+        output[result['answer']] = round(result['score'], 4)
+        print(f"Answer: '{result['answer']}', score: {round(result['score'], 4)}, start: {result['start']}, end: {result['end']}")
+        
+    keys_set = set(output.keys())
+    keys_sentence = '; '.join([key for key in keys_set])
+    print(keys_sentence)
 
-    y -= 30
-    c.setFont('Helvetica-Bold', 14)
-    sub_title_2 = "Sentiment Analysis"
-    c.drawString(50, y, sub_title_2)
+    docs = text_splitter.create_documents([keys_sentence])
+    print('done splitting')
 
-    y -= 30
-    c.setFont('Helvetica', 12)
+    chain = load_summarize_chain(falcon_llm, chain_type="map_reduce", verbose=True)
+    print(chain.llm_chain.prompt.template)
+    print(chain.combine_document_chain.llm_chain.prompt.template)
 
-    print(y)
-    # Draw the barchart in the PDF
-    canvas_width = 612  # Width of the canvas (letter size)
-    image_width = 400  # Width of the image
+    output_summary = chain.run(docs)
+    wrapped_text = textwrap.fill(
+        output_summary, width=100, break_long_words=False, replace_whitespace=False
+    )
+    print(wrapped_text)
 
-    x = (canvas_width - image_width) / 2
-    c.drawImage(temp_image, x=x, y=265, width=image_width, height=255)
+    return wrapped_text
 
-    y -= 265
-    c.setFont('Helvetica-Bold', 12)
-    sub_title_3 = "Positive Comment"
-    c.drawString(50, y, sub_title_3)
-
-    y -= 30
-    c.setFont('Helvetica', 12)
-    positive = "nn nnnn nnnnn nnnnnnnnn nnnnnnnn nnnnnn nnnnnnn nnnnnnn nnnnnnnnnnn nnnn nnn n n nn nnnnnnn nn nnnnnnn nn nnn nnnnn nnnnnn n nn n n nnnnnnnnnn n nn  nnn"
-    y = draw_text_with_wrap(c, positive, 50, y, 500)
-
-    y -= 20
-    c.setFont('Helvetica-Bold', 12)
-    sub_title_4 = "Negative Comment"
-    c.drawString(50, y, sub_title_4)
-
-    y -= 30
-    c.setFont('Helvetica', 12)
-    negative = "nnn nnnnnn nn nnn nnn n nnn nnnnn n nnnnn nnnnnnn nn nn nnn nn nnn nnnnnnnn n nn nn nn nnnnnnnn n n nnnn nnnnnnnn nn nn nn nnnnnn nn nnnnnnn nn n nnnnnn n nn nn"
-    y = draw_text_with_wrap(c, negative, 50, y, 500)
-
-    y -= 30
-    c.setFont('Helvetica-Bold', 14)
-    sub_title_5 = "Recommendation based on Comment"
-    c.drawString(50, y, sub_title_5)
-
-    y -= 30
-    c.setFont('Helvetica', 12)
-    recommendation = "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn"
-    y = draw_text_with_wrap(c, recommendation, 50, y, 500)
-
-    c.showPage()
-    c.save()
-
-    # Remove the temporary image file
-    import os
-    os.remove(temp_image)
-
-    return c
-
-
-# generate_result(youtube,"1UvTNMH7zDo")
 
 def generate_pdf(youtube, videoId):
     
@@ -319,8 +278,7 @@ def generate_pdf(youtube, videoId):
 
     # Write specific video stats to the PDF
     stat_labels = {'title': 'Title', 'viewCount': 'Total View',
-                   'likeCount': 'Total Like', 'commentCount': 'Total Comment',
-                   'favoriteCount': 'Total Favorite'}
+                   'likeCount': 'Total Like', 'commentCount': 'Total Comment'}
     for key, label in stat_labels.items():
         value = stats.get(key, '')
         text = '{}: {}'.format(label, value)
@@ -345,37 +303,29 @@ def generate_pdf(youtube, videoId):
     image_width = 400  # Width of the image
 
     x = (canvas_width - image_width) / 2
-    c.drawImage(temp_image, x=x, y=265, width=image_width, height=255)
+    c.drawImage(temp_image, x=x, y=290, width=image_width, height=255)
 
-    y -= 265
+    y -= 260
     c.setFont('Helvetica-Bold', 12)
-    sub_title_3 = "Positive Comment"
+    sub_title_3 = "Summary of Positive Sentiment Comments"
     c.drawString(50, y, sub_title_3)
 
     y -= 30
-    c.setFont('Helvetica', 12)
-    positive = "nn nnnn nnnnn nnnnnnnnn nnnnnnnn nnnnnn nnnnnnn nnnnnnn nnnnnnnnnnn nnnn nnn n n nn nnnnnnn nn nnnnnnn nn nnn nnnnn nnnnnn n nn n n nnnnnnnnnn n nn  nnn"
+    c.setFont('Helvetica', 11)
+    # positive = summary_of_comments(df,'positive')
+    positive = 'positive'
     y = draw_text_with_wrap(c, positive, 50, y, 500)
 
     y -= 20
     c.setFont('Helvetica-Bold', 12)
-    sub_title_4 = "Negative Comment"
+    sub_title_4 = "Summary of Negative Sentiment Comments"
     c.drawString(50, y, sub_title_4)
 
     y -= 30
-    c.setFont('Helvetica', 12)
-    negative = "nnn nnnnnn nn nnn nnn n nnn nnnnn n nnnnn nnnnnnn nn nn nnn nn nnn nnnnnnnn n nn nn nn nnnnnnnn n n nnnn nnnnnnnn nn nn nn nnnnnn nn nnnnnnn nn n nnnnnn n nn nn"
+    c.setFont('Helvetica', 11)
+    # negative = summary_of_comments(df,'negative')
+    negative = "negative"
     y = draw_text_with_wrap(c, negative, 50, y, 500)
-
-    y -= 30
-    c.setFont('Helvetica-Bold', 14)
-    sub_title_5 = "Recommendation based on Comment"
-    c.drawString(50, y, sub_title_5)
-
-    y -= 30
-    c.setFont('Helvetica', 12)
-    recommendation = "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn"
-    y = draw_text_with_wrap(c, recommendation, 50, y, 500)
 
     c.showPage()
     c.save()
