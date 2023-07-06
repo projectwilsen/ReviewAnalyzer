@@ -1,0 +1,253 @@
+@import url('https://fonts.googleapis.com/css?family=Poppins: 200,300,400,500,600,700,800,900&display=swap');
+*
+{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+    overflow-y:hidden; /* supaya ga ada scroll bar */
+}
+
+.home
+{
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    padding: 100px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+}
+
+header
+{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 20px 100px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navigation a {
+    position: relative;
+    font-size: 1em;
+    color: #333;
+    text-decoration: none;
+    margin-left: 40px;
+    overflow: hidden; /* Add overflow property */
+}
+
+.navigation a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -2px; 
+    width: 100%;
+    height: 2px;
+    background: #333;
+    border-radius: 2px;
+    transform-origin: left; 
+    transform: scaleX(0);
+    transition: transform 0.5s;
+}
+
+.navigation a:hover,
+.navigation a:focus {
+    color: #A93E38; /* Change link color on hover/focus */
+}
+
+.navigation a:hover::after {
+    transform: scaleX(1);
+}
+
+.navigation .btnLogout {
+    display: inline-flex;
+    padding: 5px 20px;
+    margin-left: 35px; 
+    border: 2px solid #333;
+    border-radius: 6px;
+    background: transparent;
+    color: #333;
+    font-size: 1em;
+    font-weight: 400;
+    text-decoration: none;
+    transition: background-color 0.3s, color 0.3s, transform 0.3s;
+}
+
+.navigation .btnLogout:hover {
+    background-color: #333;
+    color: #fff;
+}
+
+.content
+{
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.content .textBox
+{
+    position: relative;
+    max-width: 600px;
+}
+.content .textBox h2
+{
+    color: black;
+    font-size: 4em;
+    line-height: 1.4em;
+    font-weight: 500;
+}
+.content .textBox h2 span
+{
+    color: #A93E38;
+    font-size: 1.1em;
+    font-weight: 900;
+}
+.content .textBox p
+{
+    color: #333;
+}
+.content .imgBox
+{
+    width: 510px;
+    height: 510px;
+    display: flex; 
+    justify-content: flex-end;
+}
+form{
+    margin:1px;
+    padding:1px;
+}
+.content .textBox .form .input
+{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-size: 18px;
+}
+
+#form input[type="text"] {
+    width: 400px;
+    padding: 10px;
+    margin-right: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 16px;
+}
+
+#form input[type="submit"] {
+    background-color: #A93E38;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s, transform 0.3s;
+}
+
+#form input[type="submit"]:hover {
+    background-color: black;
+    color: #fff;
+}
+
+.form_container {
+    position: absolute;
+    max-width: 320px;
+    width: 100%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1);
+    z-index: 101;
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+    transition: 0.4s ease-in-out;
+}
+
+.form_container h2{
+    font-size: 22px;
+    color: black;
+    text-align: center;
+}
+
+.input_box{
+    position: relative;
+    margin-top: 30px;
+    width: 100%;
+    height: 40px;
+}
+
+.input_box input{
+    height: 100%;
+    width: 100%;
+    border: none;
+    outline:none;
+    padding: 0 30px;
+    color: #333;
+    transition: all 0.2s ease;
+    border-bottom: 1.5px solid #aaaaaa;
+}
+
+.input_box input:focus{
+    border-color: #A93E38;
+}
+
+.input_box i{
+    position:absolute;
+    top:50%;
+    transform: translateY(-50%);
+    font-size: 20px
+}
+
+.input_box i.email,
+.input_box i.username,
+.input_box i.youtube,
+.input_box i.password{
+    left: 0;
+    color: #333;
+
+}
+
+.input_box input:focus ~ i.email,
+.input_box input:focus ~ i.username,
+.input_box input:focus ~ i.youtube,
+.input_box input:focus ~ i.password{
+    color: #A93E38;
+}
+
+.input_box i.pw_hide{
+    right: 0;
+    font-size:18px;
+    cursor: pointer;
+}
+
+.form_container .button{
+    background: #A93E38;
+    margin-top: 30px;
+    width: 100%;
+    padding: 10px 0;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.login_signup{
+    font-size: 12px;
+    text-align: center;
+    margin-top: 15px;
+}
+
+.login_signup a{
+    color:#A93E38;
+}

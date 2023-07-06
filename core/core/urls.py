@@ -19,6 +19,6 @@ from django.urls import include, path
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path("", include("ypa.urls")),
+    path('', include("ypa.urls")),
     path('admin/', admin.site.urls),
 ]

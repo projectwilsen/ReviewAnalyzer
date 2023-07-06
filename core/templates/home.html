@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+
+{% block content %}
+    <section class = "home">
+        <header>
+            <p>GW</p> 
+            <nav class = "navigation">
+                <a href = "{%url 'home'%}">Home</a></li>
+                <a href = "#">About</a></li>
+                <a href="{% url 'logout' %}" class="btnLogout" type="submit">Logout</a>
+            </nav>
+        </header>
+        <div class = "content">
+            <div class = "textBox">
+                <h2>Gain Insights from<br><span>YouTube Video</span><br>Performance!</h2>
+                <p>Analyze video performance, track engagement, and <br> optimize your content strategy with confidence.</p>
+                <form action = "getoutput" method = "POST" id = "form">
+                {% csrf_token %}
+                    <br><input type = "text" name = "videoid" placeholder = "Paste your youtube video url here" value = "{{videoid}}">
+                    <input type = "submit">        
+                </form>
+            </div>
+            <div class = "imgBox">
+                <img src = "{% static 'img1.png' %}" class = "youtube">
+            </div>
+        </div>
+
+    </section> 
+{% endblock %}
