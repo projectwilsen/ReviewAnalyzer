@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from urllib import response
 from googleapiclient.discovery import build
-from maincodes import generate_result, generate_pdf, send_email_with_attachment
+from maincodes import generate_pdf, send_email_with_attachment
 import pandas as pd
 import os
 import io
