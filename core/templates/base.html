@@ -1,24 +1,43 @@
 {% load static %}
 
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- CSS -->
-    <link href= "{% static 'styles.css' %}" rel="stylesheet" type="text/css" /> 
 
-    <!-- icon -->
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@200;300;400;500;600;700;800;900;1000&family=Roboto:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
+
+
+     <!-- icon -->
     <link rel = "stylesheet" href = "https://unicons.iconscout.com/release/v4.0.0/css/line.css" />
 
-    <title>Youtube Performance Analyzer</title>
+
+    <link href="{% static 'dist/output.css' %}" rel="stylesheet">
+
+    <script>
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      </script>
+
+    <title>Youtube Analyzer</title>
 </head>
 <body>
+
     <!-- Content -->
-    {% block content %}{% endblock %}
+    {% block content %}
+
+
+    {% endblock %}
 
     <!-- Bootstrap JS CDN -->
-    <script src= "{% static 'script.js' %}"></script>
+    <script src= "{% static 'dist/js/script.js' %}"></script>
 </body>
 </html>
