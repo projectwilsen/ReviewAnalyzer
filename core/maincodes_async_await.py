@@ -14,6 +14,7 @@ from reportlab.lib.pagesizes import letter
 from langchain import HuggingFaceHub
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.chains.summarize import load_summarize_chain
+from langchain import PromptTemplate,  LLMChain
 import textwrap
 from transformers import pipeline
 
@@ -222,37 +223,57 @@ rm = 'deepset/roberta-base-squad2'
 
 question_answerer = pipeline("question-answering", model=rm)
 
-async def summary_of_comments(df,things = 'positive'):
-    filtered_comment = df[df['sentiment'] == things]
-    comment_text = ';'.join(filtered_comment['comment_text']).replace('\n','')
+# async def summary_of_comments(df,things = 'positive'):
+#     filtered_comment = df[df['sentiment'] == things]
+#     comment_text = ';'.join(filtered_comment['comment_text']).replace('\n','')
 
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=500)
-    comment_doc = text_splitter.create_documents([comment_text])
+#     text_splitter = RecursiveCharacterTextSplitter(chunk_size=500)
+#     comment_doc = text_splitter.create_documents([comment_text])
 
-    output = {}
-    for i in comment_doc:
-        result = question_answerer(question= f"What {things} things does the user/audience feel?", context= i.page_content) #str(i)
-        output[result['answer']] = round(result['score'], 4)
-        print(f"Answer: '{result['answer']}', score: {round(result['score'], 4)}, start: {result['start']}, end: {result['end']}")
+#     output = {}
+#     for i in comment_doc:
+#         result = question_answerer(question= f"What {things} things does the user/audience feel?", context= i.page_content) #str(i)
+#         output[result['answer']] = round(result['score'], 4)
+#         print(f"Answer: '{result['answer']}', score: {round(result['score'], 4)}, start: {result['start']}, end: {result['end']}")
         
-    keys_set = set(output.keys())
-    keys_sentence = '; '.join([key for key in keys_set])
-    print(keys_sentence)
+#     keys_set = set(output.keys())
+#     keys_sentence = '; '.join([key for key in keys_set])
+#     print(keys_sentence)
 
-    docs = text_splitter.create_documents([keys_sentence])
-    print('done splitting')
+#     docs = text_splitter.create_documents([keys_sentence])
+#     print('done splitting')
 
-    chain = load_summarize_chain(falcon_llm, chain_type="map_reduce", verbose=True)
-    print(chain.llm_chain.prompt.template)
-    print(chain.combine_document_chain.llm_chain.prompt.template)
+#     chain = load_summarize_chain(falcon_llm, chain_type="map_reduce", verbose=True)
+#     print(chain.llm_chain.prompt.template)
+#     print(chain.combine_document_chain.llm_chain.prompt.template)
 
-    output_summary = chain.run(docs)
-    wrapped_text = textwrap.fill(
-        output_summary, width=100, break_long_words=False, replace_whitespace=False
-    )
-    print(wrapped_text)
+#     output_summary = chain.run(docs)
+#     wrapped_text = textwrap.fill(
+#         output_summary, width=100, break_long_words=False, replace_whitespace=False
+#     )
+#     print(wrapped_text)
 
-    return wrapped_text
+    # return wrapped_text
+
+
+# async def summary_of_comments(df,things = 'positive'):
+#     filtered_comment = df[df['sentiment'] == things]
+#     comment_text = ';'.join(filtered_comment['comment_text']).replace('\n','')
+
+#     text_splitter = RecursiveCharacterTextSplitter(chunk_size=500)
+#     comment_doc = text_splitter.create_documents([comment_text])
+
+#     chain = load_summarize_chain(falcon_llm, chain_type="map_reduce", verbose=True)
+#     print(chain.llm_chain.prompt.template)
+#     print(chain.combine_document_chain.llm_chain.prompt.template)
+
+#     output_summary = chain.run(comment_doc)
+#     wrapped_text = textwrap.fill(
+#         output_summary, width=100, break_long_words=False, replace_whitespace=False
+#     )
+#     print(wrapped_text)
+
+#     return wrapped_text
 
 
 async def generate_pdf(videoid,stats,temp_image,positive,negative):
@@ -395,9 +416,42 @@ async def process_data_and_send_email(url, youtubeapikey, username, recipient_em
 
     return "Process completed successfully."
 
+async def get_result(url, youtubeapikey, username, recipient_email):
+    parsed_url = urlparse(url)
+    query_params = parse_qs(parsed_url.query)
+    videoid = query_params.get('v', [''])[0]
+
+    youtube = build("youtube", "v3", developerKey= youtubeapikey)
+
+    stats = await video_stats(youtube, videoid)
+    df = await comment_threads(youtube, videoID=videoid)
+    # positive = await summary_of_comments(df,'positive')
+    positive = 'positive'
+    # negative = await summary_of_comments(df,'negative')
+    negative = 'negative'
+
+
+    return stats,df,videoid,positive,negative
+
+    # temp_image = await sentiment_barchart(df)
+
+    # Remove the temporary image file
+    # os.remove(temp_image_path)
 
 
 
+def answer_question(question,source):
 
+    template = """
+    You are an intelligent chatbot that act as a senior data consultant. Anwer the following question with informative answers based on the source provided.
+    Question: Based on {source}, {question}
+    Answer:"""
 
+    prompt = PromptTemplate(template=template, input_variables=["question", "source"])
 
+    llm_chain = LLMChain(prompt=prompt, llm=falcon_llm)
+
+    answer = llm_chain.run(question=question, source= source)
+    print(answer)
+
+    return answer

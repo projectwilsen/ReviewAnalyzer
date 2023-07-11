@@ -23,7 +23,7 @@ import asyncio
 from threading import Thread
 
 from maincodes import generate_pdf, send_email_with_attachment
-from maincodes_async_await import process_data_and_send_email
+from maincodes_async_await import process_data_and_send_email, get_result, answer_question
 
 import matplotlib
 matplotlib.use('Agg')  # Set the Agg backend
@@ -129,7 +129,109 @@ def home(request):
 #         return render(request,"home.html")
     
 
-# ASYNCHRONUS
+# ASYNCHRONUS (send to email)
+
+# @login_required(login_url='login')
+# def getoutput(request):
+#     if request.method == "POST":
+#         url = request.POST["videoid"]
+
+#         try:
+#             key = ApiKey.objects.get(user=request.user)
+#             youtubeapikey = key.youtube_api_key
+#             if youtubeapikey is None:
+#                 youtubeapikey = os.environ.get('youtubeapikey')
+#         except:
+#             youtubeapikey = os.environ.get('youtubeapikey')
+
+#         username = request.user.username
+#         recipient = User.objects.get(username=username)
+#         recipient_email = recipient.email
+
+#         async def run_async():
+#             await process_data_and_send_email(url, youtubeapikey, username, recipient_email)
+
+#         def run_event_loop():
+#             loop = asyncio.new_event_loop()
+#             asyncio.set_event_loop(loop)
+#             loop.run_until_complete(run_async())
+#             loop.close()
+
+#         thread = Thread(target=run_event_loop)
+#         thread.start()
+
+#         messages.success(request, 'Processing started.')
+
+#         return redirect('home')
+
+#     else:
+#         return render(request, "home.html")
+
+
+# (chat with data)
+# opsi 1
+
+# SOURCE = None
+
+# @login_required(login_url='login')
+# def getoutput(request):
+#     context = {}
+#     if request.method == "POST":
+#         url = request.POST["videoid"]
+
+#         try:
+#             key = ApiKey.objects.get(user=request.user)
+#             youtubeapikey = key.youtube_api_key
+#             if youtubeapikey is None:
+#                 youtubeapikey = os.environ.get('youtubeapikey')
+#         except:
+#             youtubeapikey = os.environ.get('youtubeapikey')
+
+#         username = request.user.username
+#         recipient = User.objects.get(username=username)
+#         recipient_email = recipient.email
+
+#         async def run_async():
+#             stats, df, videoid, positive, negative = await get_result(url, youtubeapikey, username, recipient_email)
+
+#             return {
+#                 'videoid': videoid,
+#                 'videotitle': stats['title'],
+#                 'view': stats['viewCount'],
+#                 'like': stats['likeCount'],
+#                 'comment': stats['commentCount'],
+#                 'total_positive_comment': len(df[df['sentiment'] == 'positive']),
+#                 'total_negative_comment': len(df[df['sentiment'] == 'negative']),
+#                 'total_neutral_comment': len(df[df['sentiment'] == 'neutral']),
+#                 'positive_comment': positive,
+#                 'negative_comment': negative,
+#             }
+
+#         def run_event_loop():
+#             loop = asyncio.new_event_loop()
+#             asyncio.set_event_loop(loop)
+#             context = loop.run_until_complete(run_async())
+#             loop.close()
+
+#             messages.success(request, 'Processing started.')
+#             return context
+
+#         thread = Thread(target=run_event_loop)
+#         thread.start()
+
+#         context = run_event_loop()
+
+#         global SOURCE
+#         SOURCE = context
+#         print(SOURCE)
+
+
+#         return render(request, "home.html", context = context)
+
+#     else:
+#         return render(request, "home.html")
+
+SOURCE = None
 
 @login_required(login_url='login')
 def getoutput(request):
@@ -149,24 +251,53 @@ def getoutput(request):
         recipient_email = recipient.email
 
         async def run_async():
-            await process_data_and_send_email(url, youtubeapikey, username, recipient_email)
+            stats, df, videoid, positive, negative = await get_result(url, youtubeapikey, username, recipient_email)
 
-        def run_event_loop():
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            loop.run_until_complete(run_async())
-            loop.close()
+            context = {
+                'videoid': videoid,
+                'videotitle': stats['title'],
+                'view': stats['viewCount'],
+                'like': stats['likeCount'],
+                'comment': stats['commentCount'],
+                'total_positive_comment': len(df[df['sentiment'] == 'positive']),
+                'total_negative_comment': len(df[df['sentiment'] == 'negative']),
+                'total_neutral_comment': len(df[df['sentiment'] == 'neutral']),
+                'positive_comment': positive,
+                'negative_comment': negative,
+            }
 
-        thread = Thread(target=run_event_loop)
-        thread.start()
+            return context
 
-        # Clear previous labels and plots in Matplotlib
-        # plt.clf()
-        # plt.cla()
-
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        context = loop.run_until_complete(run_async())
+        loop.close()
+        
         messages.success(request, 'Processing started.')
 
-        return redirect('home')
+        print(context)
+
+        global SOURCE
+        SOURCE = context
+        print(SOURCE)
+
+        return render(request, "home.html", {"context":context})
 
     else:
         return render(request, "home.html")
+
+
+
+@login_required(login_url='login')
+def chat(request):
+    chatbot_response = None
+    source = SOURCE
+    print(source)
+    if request.method == 'POST':
+        user_input = request.POST.get('user_input')
+        print(source)
+
+        answer = answer_question(user_input, source)
+        print(answer)
+
+    return(render(request, "home.html", {"response":answer}))

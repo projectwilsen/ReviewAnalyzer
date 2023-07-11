@@ -68,3 +68,10 @@ pwShowHide.forEach(icon =>{
         }
     });
 });
+
+//chatbot
+document.getElementById('chatbot').scrollIntoView({
+  behavior: 'smooth',
+  block: 'end',
+  inline: 'nearest',
+});
