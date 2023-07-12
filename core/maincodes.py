@@ -297,7 +297,6 @@ def generate_pdf(youtube, videoId):
     y -= 30
     c.setFont('Helvetica', 12)
 
-    print(y)
     # Draw the barchart in the PDF
     canvas_width = 612  # Width of the canvas (letter size)
     image_width = 400  # Width of the image

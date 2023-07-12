@@ -4,47 +4,88 @@
 
 
 {% block content %}
-    <section class = "home">
-        <div class = "form_container">
-            <div class = "form signup_form">
-                <form action  = "{% url 'signup' %}" method = "POST">
-                {% csrf_token %}
-                    <h2>Signup</h2>
-
-                    <div class = "input_box">
-                        <input type="username" name = "username" placeholder="Enter your username" id = "username" required/>
-                        <i class = "uil uil-user username"></i>
-                    </div>
-
-                    <div class = "input_box">
-                        <input type="email" name = "email" placeholder="Enter your email" id = "email" required/>
-                        <i class = "uil uil-envelope-alt email"></i>
-                    </div>
-
-                    <div class = "input_box">
-                        <input type="password" name = "password1"placeholder="Enter your password" id = "password1" required/>
-                        <i class = "uil uil-lock password"></i>
-                        <i class = "uil uil-eye-slash pw_hide"></i>
-                    </div>
-
-                    <div class = "input_box">
-                        <input type="password" name = "password2"placeholder="Confirm your password" id = "password2" required/>
-                        <i class = "uil uil-lock password"></i>
-                        <i class = "uil uil-eye-slash pw_hide"></i>
-                    </div>
-
-                    <div class = "input_box">
-                        <input type="youtubeapikey" name = "youtubeapikey" placeholder="Enter you Youtube API Key" id = "youtubeapikey"/>
-                        <i class = "uil uil-youtube youtube"></i>
-                    </div>
-
-                    <button class ="button">Signup Now</button>
-
-                    <div class="login_signup"> Already have an account? 
-                        <a href= "{%url 'login'%}" id = "login">Login</a>
-                    </div>
-                </form>
+    <div class="form_container absolute max-w-sm w-full top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 scale-100 z-101 bg-white p-7 rounded-lg shadow-xl transition duration-400 ease-in-out drop-shadow-xl">
+        <form action="{% url 'signup' %}" method="POST">
+            {% csrf_token %}
+    
+            <h2 class="font-nunito text-2xl font-extrabold text-center">Signup</h2>
+    
+            <div class="input_box relative mt-8 w-full h-10">
+                <input type="username" 
+                name="username" 
+                placeholder="Enter your username" 
+                id="username" required 
+                class=" h-full w-full outline-none px-8 text-gray-700 transition duration-200 ease border-b-2 border-gray-400 focus:border-red-600" />
+                <i class="uil uil-user username absolute top-1/2 transform -translate-y-1/2 text-gray-700 text-lg left-0"></i>
             </div>
-        </div>
-    </section> 
+
+            <div class="input_box relative mt-8 w-full h-10">
+                <input type="email" 
+                name="email" 
+                placeholder="Enter your email" 
+                id="email" required 
+                class=" h-full w-full outline-none px-8 text-gray-700 transition duration-200 ease border-b-2 border-gray-400 focus:border-red-600" />
+                <i class="uil uil-envelope-alt email email absolute top-1/2 transform -translate-y-1/2 text-gray-700 text-lg left-0"></i>
+            </div>
+            
+            <div class="input_box relative mt-8 w-full h-10">
+                <input type="password" 
+                name="password" 
+                placeholder="Enter your password" 
+                id="password" required 
+                class="h-full w-full outline-none px-8 text-gray-700 transition duration-200 ease border-b-2 border-gray-400 focus:border-red-600" />
+                <i class="uil uil-lock password absolute top-1/2 transform -translate-y-1/2 text-gray-700 text-lg left-0"></i>
+                <i id = "pw_hide"
+                class="uil uil-eye-slash pw_hide absolute top-1/2 transform -translate-y-1/2 text-gray-700 text-base right-0 cursor-pointer"></i>
+            </div>
+
+            <div class="input_box relative mt-8 w-full h-10">
+                <input type="password" 
+                name="password2" 
+                placeholder="Confirm your password" 
+                id="password2" required 
+                class="h-full w-full outline-none px-8 text-gray-700 transition duration-200 ease border-b-2 border-gray-400 focus:border-red-600" />
+                <i class="uil uil-lock password absolute top-1/2 transform -translate-y-1/2 text-gray-700 text-lg left-0"></i>
+                <i id = "pw_hide"
+                class="uil uil-eye-slash pw_hide absolute top-1/2 transform -translate-y-1/2 text-gray-700 text-base right-0 cursor-pointer"></i>
+            </div>
+            
+            <div class="input_box relative mt-8 w-full h-10">
+                <input type="youtubeapikey" 
+                name="youtubeapikey" 
+                placeholder="Enter your YouTube API key" 
+                id="youtubeapikey"
+                class=" h-full w-full outline-none px-8 text-gray-700 transition duration-200 ease border-b-2 border-gray-400 focus:border-red-600" />
+                <i class="uil uil-youtube youtube absolute top-1/2 transform -translate-y-1/2 text-gray-700 text-lg left-0"></i>
+            </div>
+
+            <button class="button bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full mt-8 w-full font-nunito" id="signupnow">Signup Now</button>
+    
+            <div class="login_signup text-sm text-center mt-4 font-nunito">
+                Already have an account? 
+                <a href= "{%url 'login'%}" id = "login" class="text-red-600">Login</a>
+            </div>
+        </form>
+    </div>
+    
+    
+    <!-- <script src="dist/js/script.js"></script> -->
+    <script>
+        const pwShowHide = document.querySelectorAll("#pw_hide");
+        console.log(pwShowHide)
+
+
+        pwShowHide.forEach(icon =>{
+            icon.addEventListener("click", () =>{
+                let getPwInput = icon.parentElement.querySelector("input");
+                if(getPwInput.type === "password"){
+                    getPwInput.type = "text";
+                    icon.classList.replace("uil-eye-slash","uil-eye");
+                }else{
+                    getPwInput.type = "password";
+                    icon.classList.replace("uil-eye","uil-eye-slash");
+                }
+            });
+        });
+    </script>
 {% endblock %}
