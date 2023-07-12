@@ -1,9 +1,12 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    './core/static/**/*.{html,js}',
+    './core/templates/*.{html,js}',
     './core/static/*.{html,js}',
-  ], //"index.html","login.html","signup.html",
+    './core/**/*.{html,js}',
+    "../templates/**/*.{html,js}",
+    "../templates/*.{html,js}"
+  ],
   darkMode: 'class',
   theme: {
     container: {
@@ -25,4 +28,5 @@ module.exports = {
   },
   plugins: [],
 }
+
 
