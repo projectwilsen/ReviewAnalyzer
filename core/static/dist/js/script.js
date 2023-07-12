@@ -53,8 +53,6 @@ if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.match
 
 // hidden pass
 const pwShowHide = document.querySelectorAll("#pw_hide");
-console.log(pwShowHide)
-
 
 pwShowHide.forEach(icon =>{
     icon.addEventListener("click", () =>{
@@ -69,9 +67,9 @@ pwShowHide.forEach(icon =>{
     });
 });
 
-//chatbot
-document.getElementById('chatbot').scrollIntoView({
-  behavior: 'smooth',
-  block: 'end',
-  inline: 'nearest',
-});
+// //chatbot
+// document.getElementById('chatbot').scrollIntoView({
+//   behavior: 'smooth',
+//   block: 'end',
+//   inline: 'nearest',
+// });

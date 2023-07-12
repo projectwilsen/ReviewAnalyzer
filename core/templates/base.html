@@ -30,6 +30,19 @@
     <title>Review Analyzer</title>
 </head>
 <body>
+    {% comment %} {% if messages %}
+      <div id = "alert" class="alert text-red-700 mx-5 px-4 py-3 rounded relative text-center" role="alert">
+        {% for message in messages %}
+          <span class="block m-10 sm:inline">{{ message }}</span>
+        {% endfor %}
+      </div>
+
+      <script>
+        setTimeout(function() {
+          document.querySelector('#alert').style.display = 'none';
+        }, 3000);
+      </script>
+    {% endif %} {% endcomment %}
 
     <!-- Content -->
     {% block content %}
@@ -39,5 +52,6 @@
 
     <!-- Bootstrap JS CDN -->
     <script src= "{% static 'dist/js/script.js' %}"></script>
+
 </body>
 </html>

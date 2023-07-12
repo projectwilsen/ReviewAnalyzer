@@ -4,8 +4,19 @@ from django.http import HttpResponse, JsonResponse
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 
-from .models import User, ApiKey
+
+
+from .serializers import ResultSerializer
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
+import requests
+
+from .models import User, ApiKey, Result
+from django.forms.models import model_to_dict
 
 from googleapiclient.discovery import build
 
@@ -168,7 +179,7 @@ def home(request):
 #         return render(request, "home.html")
 
 
-# (chat with data)
+# CHATBOT
 # opsi 1
 
 # SOURCE = None
@@ -233,7 +244,8 @@ def home(request):
 
 SOURCE = None
 
-@login_required(login_url='login')
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def getoutput(request):
     if request.method == "POST":
         url = request.POST["videoid"]
@@ -253,7 +265,9 @@ def getoutput(request):
         async def run_async():
             stats, df, videoid, positive, negative = await get_result(url, youtubeapikey, username, recipient_email)
 
-            context = {
+            source = {
+                # if using API 'user' should be added
+                'user': request.user.pk,
                 'videoid': videoid,
                 'videotitle': stats['title'],
                 'view': stats['viewCount'],
@@ -266,38 +280,190 @@ def getoutput(request):
                 'negative_comment': negative,
             }
 
-            return context
+            return source
 
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        context = loop.run_until_complete(run_async())
+        source = loop.run_until_complete(run_async())
         loop.close()
         
-        messages.success(request, 'Processing started.')
+        # messages.success(request, 'Processing started.')
 
-        print(context)
+        # 1. === SAVE TO GLOBAL VARIABLE ===
 
-        global SOURCE
-        SOURCE = context
-        print(SOURCE)
+        # global SOURCE
+        # SOURCE = source
+        # print(SOURCE)
 
-        return render(request, "home.html", {"context":context})
+
+        # 2. === SAVE INTO DB USING QUERY === 
+
+        # current_user = request.user
+        # videoid = source['videoid']
+
+        # Check if a record with the same videoid exists
+        # try:
+        #     result = Result.objects.get(user=current_user, videoid=videoid)
+        #     print(result)
+        # except Result.DoesNotExist:
+        #     result = None
+
+        # # If the record exists, update it; otherwise, create a new record
+        # if result:
+        #     result.videotitle = source['videotitle']
+        #     result.view = source['view']
+        #     result.like = source['like']
+        #     result.comment = source['comment']
+        #     result.total_positive_comment = source['total_positive_comment']
+        #     result.positive_comment = source['positive_comment']
+        #     result.total_negative_comment = source['total_negative_comment']
+        #     result.negative_comment = source['negative_comment']
+        # else:
+        #     result = Result(
+        #         user=current_user,
+        #         videoid=videoid,
+        #         videotitle= source['videotitle'],
+        #         view = source['view'],
+        #         like = source['like'],
+        #         comment = source['comment'],
+        #         total_positive_comment = source['total_positive_comment'],
+        #         positive_comment = source['positive_comment'],
+        #         total_negative_comment = source['total_negative_comment'],
+        #         negative_comment = source['negative_comment']
+        #     )
+
+        # result.save()
+
+        # 3. SAVE INTO DB USING API
+
+        serializer = ResultSerializer(data = source)
+        if serializer.is_valid():
+            serializer.save()
+        else:
+            print(serializer.errors) 
+
+        return render(request, "home.html", {"source":source})
+        # return redirect('chat')
 
     else:
         return render(request, "home.html")
 
 
-
 @login_required(login_url='login')
 def chat(request):
-    chatbot_response = None
-    source = SOURCE
-    print(source)
+
+    # 1. === USING GLOBAL VARIABLE === 
+    # source = SOURCE
+
+    # 2. === USING QUERY DB === 
+    # current_user = request.user
+
+    # source = Result.objects.filter(
+    #     user=current_user
+    # ).latest('created_at')
+
+    # user=source.user
+    # videoid=source.videoid
+    # videotitle= source.videotitle
+    # view = source.view
+    # like = source.like
+    # comment = source.comment
+    # total_positive_comment = source.total_positive_comment
+    # positive_comment = source.positive_comment
+    # total_negative_comment = source.total_negative_comment
+    # negative_comment = source.negative_comment
+
+    # Make the result into dictionary and save it as source
+    # sources = model_to_dict(source)
+
+    # 3. === USING API === 
+
+    # token = request.user.auth_token.key
+    user = request.user.pk
+
+    api_url = f'http://127.0.0.1:8000/result/{user}'
+    response = requests.get(api_url)
+
+    if response.status_code == 200:
+        data = response.json()
+        source = data[-1]
+    else:
+        print('Error:', response.status_code)
+    
+    videoid = source['videoid'],
+    videotitle= source['videotitle'],
+    view = source['view'],
+    like = source['like'],
+    comment = source['comment'],
+    total_positive_comment = source['total_positive_comment'],
+    positive_comment = source['positive_comment'],
+    total_negative_comment = source['total_negative_comment'],
+    negative_comment = source['negative_comment']
+
+    # context = {
+    #             # if using API 'user' should be added
+    #             'user': request.user.pk,
+    #             'videoid': videoid,
+    #             'videotitle': stats['title'],
+    #             'view': stats['viewCount'],
+    #             'like': stats['likeCount'],
+    #             'comment': stats['commentCount'],
+    #             'total_positive_comment': len(df[df['sentiment'] == 'positive']),
+    #             'total_negative_comment': len(df[df['sentiment'] == 'negative']),
+    #             'total_neutral_comment': len(df[df['sentiment'] == 'neutral']),
+    #             'positive_comment': positive,
+    #             'negative_comment': negative,
+    #         }
+
     if request.method == 'POST':
         user_input = request.POST.get('user_input')
-        print(source)
 
-        answer = answer_question(user_input, source)
+        answer = answer_question(
+            user_input, videoid, videotitle, view, like, comment,
+            total_positive_comment, positive_comment, 
+            total_negative_comment, negative_comment)
+
         print(answer)
 
-    return(render(request, "home.html", {"response":answer}))
+    return(render(request, "home.html", {"response":answer, "source": source}))
+
+
+@api_view(['GET','POST'])
+def result_list_all(request):
+
+    if request.method == "GET":
+
+        result = Result.objects.all()
+        serializer = ResultSerializer(result, many = True)
+        
+        return JsonResponse(serializer.data, safe = False)
+    
+    if request.method == "POST":
+
+        serializer = ResultSerializer(data = request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status = status.HTTP_201_CREATED)
+
+@api_view(['GET', 'PUT', 'DELETE'])
+def result_list_by_user(request,user):
+
+    try:
+        result = Result.objects.filter(user=user)
+    except Result.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        serializer = ResultSerializer(result, many = True)
+        return Response(serializer.data)
+
+    # elif request.method == 'PUT':
+    #     serializer = ResultSerializer(drink, data=request.data)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(serializer.data)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # elif request.method == 'DELETE':
+    #     drink.delete()
+    #     return Response(status=status.HTTP_204_NO_CONTENT)

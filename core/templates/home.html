@@ -5,7 +5,7 @@
 {% block content %}
 
   {% if messages %}
-    <div id = "alert" class="alert text-red-700 px-4 py-3 rounded relative" role="alert">
+    <div id = "alert" class="alert font-nunito text-red-700 px-4 py-3" role="alert">
       {% for message in messages %}
         <span class="block sm:inline">{{ message }}</span>
       {% endfor %}
@@ -99,58 +99,92 @@
         </div>
     </section>
     <!-- Hero Section End -->
+    
+    <!-- History Section Start -->
+    <section id = "history" class = "pt-10 dark:bg-black">
+      <div class = "container">
+        <div class = "w-full px-10">
+          <h1 class = 'font-roboto text-2xl font-base text-center lg:text-2xl lg:text-left lg:ml-2 lg:leading-none  dark:text-white'> 
+            My History
+          </h1>
+          <div class = "flex flex-wrap pt-10 justify-start content-start gap-4 px-1">
+            <div class = " group w-[380px] h-[100px] relative bg-white/10 p-5 rounded-lg backdrop-filter backdrop-blur-xl shadow-lg hover:bg-white transition duration-300 ease-in-out">
+              <h1 class = "font-nunito font-bold text-sm text-slate-100 group-hover:bg-gradient-to-b group-hover:from-red-600 group-hover:to-red-950 group-hover:bg-clip-text group-hover:text-transparent group-hover:text-white">
+                Tailwind CSS Glassmorphism Tutorial: Beautiful Glassmorphism Credit/Debit card.
+              </h1>
+              <h1 class = "font-nunito text-sm text-slate-400 mt-1 group-hover:text-black group-focus:text-black">
+                1 day ago
+              </h1>
+            </div>
+            <div class = " group w-[380px] h-[100px] relative bg-white/10 p-5 rounded-lg backdrop-filter backdrop-blur-xl shadow-lg hover:bg-white transition duration-300 ease-in-out">
+              <h1 class = "font-nunito font-bold text-sm text-slate-100 group-hover:bg-gradient-to-b group-hover:from-red-600 group-hover:to-red-950 group-hover:bg-clip-text group-hover:text-transparent group-hover:text-white">
+                Tailwind CSS Glassmorphism Tutorial: Beautiful Glassmorphism Credit/Debit card.
+              </h1>
+              <h1 class = "font-nunito text-sm text-slate-400 mt-1 group-hover:text-black group-focus:text-black">
+                1 day ago
+              </h1>
+            </div>
+            <div class = " group w-[380px] h-[100px] relative bg-white/10 p-5 rounded-lg backdrop-filter backdrop-blur-xl shadow-lg hover:bg-white transition duration-300 ease-in-out">
+              <h1 class = "font-nunito font-bold text-sm text-slate-100 group-hover:bg-gradient-to-b group-hover:from-red-600 group-hover:to-red-950 group-hover:bg-clip-text group-hover:text-transparent group-hover:text-white">
+                Tailwind CSS Glassmorphism Tutorial: Beautiful Glassmorphism Credit/Debit card.
+              </h1>
+              <h1 class = "font-nunito text-sm text-slate-400 mt-1 group-hover:text-black group-focus:text-black">
+                1 day ago
+              </h1>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
 
     <!-- ChatBot Section Start -->
-    {% comment %} {% if context %} {% endcomment %}
-    <section id = "chatbot" class="pt-16 dark:bg-black">
-        <div class = "container text-center mx-auto">
-                <div class = "w-full px-4">
-                    <h1 class = 'font-roboto text-4xl font-medium text-center lg:text-6xl lg:text-left lg:ml-2 lg:leading-none  dark:text-white'> 
-                      Your result is out!
-                    </h1><br>
-                    <p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Video ID: {{ context.videoid}} </p>
-                    <p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Video Title: {{ context.videotitle}} </p><br>
-                    <p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-lg lg:text-left lg:ml-3 dark:text-white'>Statistic </p>
-                    <p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Total View: {{context.view}} </p>
-                    <p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Total Like: {{context.like}} </p>
-                    <p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Total Comment: {{context.comment}} </p><br>
-                    <form action = "chat" method = "POST" id = "form" class = "mt-3 text-center flex">
-                      {% csrf_token %}
-                        <input 
-                            type = "text" 
-                            name = "user_input" 
-                            placeholder = "Give me a summary of the comments in my video!" 
-                            class = "m-2 px-3 py-1.5 border shadow rounded w-5/6 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-red-600 inline lg:text-lg">
-                        <input 
-                            type = "submit"
-                            class = "m-2 px-3 py-1.5 rounded text-sm bg-red-600 text-white transition duration-300 ease-in-out hover:bg-black hover:shadow-lg lg:text-lg dark:hover:bg-white dark:hover:text-black">  
-                    </form>
-                </div>
 
-                {% if response %}
-                <br>
-                  <h1 class = "text-white text-left m-3 mt-5 p-10">
-                    {{response|safe}}
-                  </h1>
-                {% endif %}
+    <section id = "chatbot" class="py-20 dark:bg-black">
+        <div class = "container">
+          <div class = "w-full px-10">
+            <h1 class = 'font-roboto text-4xl font-medium text-center lg:text-6xl lg:text-left lg:ml-2 lg:leading-none  dark:text-white'> 
+              Your result is out!
+            </h1>
+      
+            <br>
+
+              <div id = "output">
+                <script type="text/template" id="template">            
+                  <p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Video ID: {{source.videoid | default:"videoid"}} </p>
+                  <p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Video Title: {{source.videotitle | default:"videotitle"}} </p><br>
+                  <p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-lg lg:text-left lg:ml-3 dark:text-white'>Statistic </p>
+                  <p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Total View: {{source.view | default:"view"}} </p>
+                  <p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Total Like: {{source.like | default:"like"}} </p>
+                  <p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Total Comment: {{source.comment | default:"comment"}} </p><br>
+                </script>  
+              </div>
+              <form action = "chat" method = "POST" id = "form_chat_bot" class = "mt-3 text-center flex">
+                {% csrf_token %}
+                  <input 
+                      type = "text" 
+                      name = "user_input" 
+                      placeholder = "Give me a summary of the comments in my video!" 
+                      class = "m-2 px-3 py-1.5 border shadow rounded w-full text-sm placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-red-600 inline lg:text-lg">
+                  <input 
+                      type = "submit"
+                      class = "m-2 px-3 py-1.5 rounded text-sm bg-red-600 text-white transition duration-300 ease-in-out hover:bg-black hover:shadow-lg lg:text-lg dark:hover:bg-white dark:hover:text-black">  
+              </form>
+          </div>
+
+          {% if response %}
+          <br>
+            <h1 class = "text-white text-left mt-3 ml-3 px-11">
+              {{response|safe}}
+            </h1>
+          {% endif %}
         </div>
     </section>
 
-    {% comment %} <script>
-      // Scroll to the bottom of the page
-      document.getElementById('chatbot').scrollIntoView({
-        behavior: 'smooth',
-        block: 'end',
-        inline: 'nearest'
-      });
-    </script> {% endcomment %}
-
-    {% comment %} {% endif %} {% endcomment %}
     <!-- ChatBot Section End -->
-
   
     <!-- Footer Start -->
-    <footer id = "footer" class="bg-dark pt-8 p-5 dark:bg-black">
+    <footer id = "footer" class="bg-dark p-5 dark:bg-black">
         <div class="container">
             {% comment %} <div class="mb-3 flex items-center justify-center">
               
@@ -189,6 +223,65 @@
         </div>
       </footer>
       <!-- Footer End -->
+
+      <script>
+        // Scroll to the bottom of the page
+        {% comment %} document.getElementById('chatbot').scrollIntoView({
+          behavior: 'smooth',
+          block: 'end',
+          inline: 'nearest'
+        }); {% endcomment %}
+  
+        document.addEventListener('DOMContentLoaded', function() {
+          // Make a fetch request to check if the user has data
+          var user = {{ request.user.pk }}
+          api_url = 'http://127.0.0.1:8000/result/'+ user
+          fetch(api_url)
+            .then(response => response.json())
+            .then(function(response){
+              console.log(response[0])
+              if (typeof response[0] !== 'undefined') {
+                console.log('y')
+                document.getElementById('chatbot').style.display = 'block';
+                
+                var defaultVideoId = "{{ source.videoid|default:'videoid' }}";
+                var defaultVideoTitle = "{{ source.videotitle|default:'videotitle' }}";
+                var defaultTotalView = "{{ source.view|default:'view' }}";
+                var defaultTotalLike = "{{ source.like|default:'like' }}";
+                var defaultTotalComment = "{{ source.comment|default:'comment' }}";
+
+                var latestData = response[response.length - 1];
+                var template = document.getElementById('template').innerHTML;
+                console.log(template)
+                var filledTemplate = template.replace("{{ source.videoid|default:'videoid' }}", latestData.videoid || defaultVideoId)
+                  .replace("{{ source.videotitle|default:'videotitle' }}", latestData.videotitle || defaultVideoTitle)
+                  .replace("{{ source.view|default:'view' }}", latestData.view || defaultTotalView)
+                  .replace("{{ source.like|default:'like' }}", latestData.like || defaultTotalLike)
+                  .replace("{{ source.comment|default:'comment' }}", latestData.comment || defaultTotalComment)
+
+                document.getElementById('output').innerHTML = filledTemplate;
+                
+              } else {
+                // User doesn't have data, hide the form
+                console.log('n')
+                document.getElementById('chatbot').style.display = 'none';
+              }
+            })
+            .catch(function(error) {
+              console.log(error);
+            });
+        });
+
+        {% comment %} const form = document.getElementById('form_chat_bot');
+
+        form.addEventListener('submit', function(event) {
+          event.stopPropagation();
+          document.getElementById('form_chat_bot').scrollIntoView();
+          window.scrollTo(0, document.body.scrollHeight);
+          history.pushState(null, null, window.location.href);
+        }); {% endcomment %}
+
+      </script>
 
       {{ redirect_to_login_immediately }}
     
