@@ -474,13 +474,17 @@ def answer_question(question,videoid, videotitle, view, like, comment, total_pos
 
     llm_chain = LLMChain(prompt=prompt, llm=falcon_llm)
 
+    print("start working")
+
     answer = llm_chain.run(
         question=question, videoid = videoid, 
         videotitle = videotitle, view = view, like = like, 
         comment = comment, total_positive_comment = total_positive_comment, 
         positive_comment = positive_comment, total_negative_comment = total_negative_comment,
         negative_comment = negative_comment)
-
+    
+    print("answer ready")
+    
     return answer
 
 

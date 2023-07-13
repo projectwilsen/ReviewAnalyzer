@@ -73,3 +73,15 @@ pwShowHide.forEach(icon =>{
 //   block: 'end',
 //   inline: 'nearest',
 // });
+
+
+// function showHistory(m) {
+//   return `div class = " group w-[380px] h-[100px] relative bg-white/10 p-5 rounded-lg backdrop-filter backdrop-blur-xl shadow-lg hover:bg-white transition duration-300 ease-in-out">
+//             <h1 class = "font-nunito font-bold text-sm text-slate-100 group-hover:bg-gradient-to-b group-hover:from-red-600 group-hover:to-red-950 group-hover:bg-clip-text group-hover:text-transparent group-hover:text-white">
+//               ${m.title}
+//             </h1>
+//             <h1 class = "font-nunito text-sm text-slate-400 mt-1 group-hover:text-black group-focus:text-black">
+//               ${m.created_at}
+//             </h1>
+//           </div>`
+// }

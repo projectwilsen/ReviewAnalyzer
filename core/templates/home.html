@@ -104,34 +104,13 @@
     <section id = "history" class = "pt-10 dark:bg-black">
       <div class = "container">
         <div class = "w-full px-10">
-          <h1 class = 'font-roboto text-2xl font-base text-center lg:text-2xl lg:text-left lg:ml-2 lg:leading-none  dark:text-white'> 
+          <h1 id = "history" class = 'font-roboto text-2xl font-base text-center lg:text-2xl lg:text-left lg:ml-2 lg:leading-none  dark:text-white'> 
             My History
           </h1>
-          <div class = "flex flex-wrap pt-10 justify-start content-start gap-4 px-1">
-            <div class = " group w-[380px] h-[100px] relative bg-white/10 p-5 rounded-lg backdrop-filter backdrop-blur-xl shadow-lg hover:bg-white transition duration-300 ease-in-out">
-              <h1 class = "font-nunito font-bold text-sm text-slate-100 group-hover:bg-gradient-to-b group-hover:from-red-600 group-hover:to-red-950 group-hover:bg-clip-text group-hover:text-transparent group-hover:text-white">
-                Tailwind CSS Glassmorphism Tutorial: Beautiful Glassmorphism Credit/Debit card.
-              </h1>
-              <h1 class = "font-nunito text-sm text-slate-400 mt-1 group-hover:text-black group-focus:text-black">
-                1 day ago
-              </h1>
-            </div>
-            <div class = " group w-[380px] h-[100px] relative bg-white/10 p-5 rounded-lg backdrop-filter backdrop-blur-xl shadow-lg hover:bg-white transition duration-300 ease-in-out">
-              <h1 class = "font-nunito font-bold text-sm text-slate-100 group-hover:bg-gradient-to-b group-hover:from-red-600 group-hover:to-red-950 group-hover:bg-clip-text group-hover:text-transparent group-hover:text-white">
-                Tailwind CSS Glassmorphism Tutorial: Beautiful Glassmorphism Credit/Debit card.
-              </h1>
-              <h1 class = "font-nunito text-sm text-slate-400 mt-1 group-hover:text-black group-focus:text-black">
-                1 day ago
-              </h1>
-            </div>
-            <div class = " group w-[380px] h-[100px] relative bg-white/10 p-5 rounded-lg backdrop-filter backdrop-blur-xl shadow-lg hover:bg-white transition duration-300 ease-in-out">
-              <h1 class = "font-nunito font-bold text-sm text-slate-100 group-hover:bg-gradient-to-b group-hover:from-red-600 group-hover:to-red-950 group-hover:bg-clip-text group-hover:text-transparent group-hover:text-white">
-                Tailwind CSS Glassmorphism Tutorial: Beautiful Glassmorphism Credit/Debit card.
-              </h1>
-              <h1 class = "font-nunito text-sm text-slate-400 mt-1 group-hover:text-black group-focus:text-black">
-                1 day ago
-              </h1>
-            </div>
+          <div class = "history flex flex-wrap pt-10 justify-start content-start gap-4 px-1">
+            
+            <!-- Auto Filled with JS-->
+
           </div>
         </div>
       </div>
@@ -140,16 +119,16 @@
 
     <!-- ChatBot Section Start -->
 
-    <section id = "chatbot" class="py-20 dark:bg-black">
+    <section id = "chatbot" class="py-20 dark:bg-black hidden">
         <div class = "container">
           <div class = "w-full px-10">
             <h1 class = 'font-roboto text-4xl font-medium text-center lg:text-6xl lg:text-left lg:ml-2 lg:leading-none  dark:text-white'> 
-              Your result is out!
+              Let's dive deeper together!
             </h1>
       
             <br>
 
-              <div id = "output">
+            <div id = "chatbot_info">
                 <script type="text/template" id="template">            
                   <p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Video ID: {{source.videoid | default:"videoid"}} </p>
                   <p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Video Title: {{source.videotitle | default:"videotitle"}} </p><br>
@@ -239,11 +218,79 @@
           fetch(api_url)
             .then(response => response.json())
             .then(function(response){
-              console.log(response[0])
               if (typeof response[0] !== 'undefined') {
-                console.log('y')
-                document.getElementById('chatbot').style.display = 'block';
                 
+                // History
+                document.getElementById('history').style.display = 'block';
+
+                let history = '';
+                response.reverse().forEach(h => history += showHistory(h));
+                const historyContainer = document.querySelector('.history')
+                historyContainer.innerHTML = history;
+                
+                // Delete button
+                const close = document.querySelectorAll('.close')
+                console.log(close)
+
+                close.forEach(function(el) {
+                  el.addEventListener('click', function(e) {
+                    e.preventDefault();
+                
+                    if (confirm("This action will permanently delete your history.\nAre you sure? ")) {
+                      
+              
+                      var buttonId = this.parentElement.getAttribute('data-id');
+                      var csrfToken = "{{ csrf_token }}";
+                      console.log(csrfToken)
+                                       
+                      fetch(api_url+'/'+buttonId, {
+                        method: 'DELETE',
+                        headers: {
+                          'X-CSRFToken': csrfToken
+                        }
+                      })
+                        .then(response => {
+                          if (response.ok) {
+                            // DELETE request successful
+                            console.log('Deleted successfully');
+                          } else {
+                            // DELETE request failed
+                            console.log('Deletion failed');
+                          }
+                        })
+                        .catch(error => {
+                          console.error('Error:', error);
+                        });
+
+                      e.target.parentElement.style.display = 'none';
+                    }
+                  });
+                });
+
+                // History button
+                const history_button = document.querySelectorAll('#history_button')
+                console.log(history_button)
+                
+                history_button.forEach(function(button){
+                  button.addEventListener('click', function(e) {
+                    //e.preventDefault()
+                    var buttonId = this.getAttribute('data-id');
+                    console.log(buttonId)
+
+                    // Chatbot (New)
+                    //document.getElementById('chatbot').style.display = 'block';
+                    //console.log(api_url+'/'+buttonId)
+                    //fetch(api_url+'/'+buttonId)
+                      //.then(response => response.json())
+                      //.then(data => showChatBot(data[0]));
+                  })
+                });
+
+                
+                  
+                // Chatbot (Old)
+                document.getElementById('chatbot').style.display = 'block';
+
                 var defaultVideoId = "{{ source.videoid|default:'videoid' }}";
                 var defaultVideoTitle = "{{ source.videotitle|default:'videotitle' }}";
                 var defaultTotalView = "{{ source.view|default:'view' }}";
@@ -251,19 +298,20 @@
                 var defaultTotalComment = "{{ source.comment|default:'comment' }}";
 
                 var latestData = response[response.length - 1];
+                var latestData = response[0];
                 var template = document.getElementById('template').innerHTML;
-                console.log(template)
+            
                 var filledTemplate = template.replace("{{ source.videoid|default:'videoid' }}", latestData.videoid || defaultVideoId)
                   .replace("{{ source.videotitle|default:'videotitle' }}", latestData.videotitle || defaultVideoTitle)
                   .replace("{{ source.view|default:'view' }}", latestData.view || defaultTotalView)
                   .replace("{{ source.like|default:'like' }}", latestData.like || defaultTotalLike)
                   .replace("{{ source.comment|default:'comment' }}", latestData.comment || defaultTotalComment)
 
-                document.getElementById('output').innerHTML = filledTemplate;
+                document.getElementById('chatbot_info').innerHTML = filledTemplate;
                 
               } else {
                 // User doesn't have data, hide the form
-                console.log('n')
+                document.getElementById('history').style.display = 'none';
                 document.getElementById('chatbot').style.display = 'none';
               }
             })
@@ -272,16 +320,84 @@
             });
         });
 
-        {% comment %} const form = document.getElementById('form_chat_bot');
+        function showChatBot(chatbot_info){
 
-        form.addEventListener('submit', function(event) {
-          event.stopPropagation();
-          document.getElementById('form_chat_bot').scrollIntoView();
-          window.scrollTo(0, document.body.scrollHeight);
-          history.pushState(null, null, window.location.href);
-        }); {% endcomment %}
+          let filledTemplate =''
+
+          filledTemplate = `<p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Video ID: ${chatbot_info.videoid} </p>
+                  <p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Video Title: ${chatbot_info.videotitle} </p><br>
+                  <p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-lg lg:text-left lg:ml-3 dark:text-white'>Statistic </p>
+                  <p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Total View: ${chatbot_info.view} </p>
+                  <p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Total Like: ${chatbot_info.like} </p>
+                  <p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Total Comment: ${chatbot_info.comment} </p><br>`
+
+          document.getElementById('chatbot_info').innerHTML = filledTemplate;
+        }
+
+
+
+        function showHistory(h) {
+
+          const djangoDate = new Date(h.created_at);
+          const currentDate = new Date();
+          
+          const timeDiff = currentDate.getTime() - djangoDate.getTime();
+          
+          const secondsDiff = Math.floor(timeDiff / 1000);
+        
+          // Calculate the elapsed days, hours, minutes, and seconds
+          const days = Math.floor(secondsDiff / (24 * 60 * 60));
+          const hours = Math.floor((secondsDiff % (24 * 60 * 60)) / (60 * 60));
+          const minutes = Math.floor((secondsDiff % (60 * 60)) / 60);
+          const seconds = Math.floor(secondsDiff % 60);
+        
+          return `<button id = "history_button" data-id = ${h.id} class="group text-left w-[380px] h-[100px] relative bg-white/10 p-5 rounded-lg backdrop-filter backdrop-blur-xl shadow-lg hover:bg-white transition duration-300 ease-in-out focus:bg-white">
+       
+                    <h1 class="font-nunito font-bold text-sm text-slate-100 group-hover:bg-gradient-to-b group-hover:from-red-600 group-hover:to-red-950 group-hover:bg-clip-text group-hover:text-transparent group-focus:bg-gradient-to-b group-focus:from-red-600 group-focus:to-red-950 group-focus:bg-clip-text group-focus:text-transparent">
+                      ${h.videotitle}
+                    </h1>
+                 
+                    <h1 class="font-nunito text-sm text-slate-400 mt-1 group-hover:text-black group-focus:text-black">
+                      ${getTimeAgo(days, hours, minutes, seconds)}
+                    </h1>
+
+                    <a href="" class=" close font-nunito absolute pr-4 pt-1 text-slate-600 top-0 right-0 group-hover:text-black group-focus:text-black">
+                      x
+                    </a>
+                  </button>`;
+        }
+        
+        function getTimeAgo(days, hours, minutes, seconds) {
+          if (days > 0) {
+            return `${days} days ago`;
+          } else if (hours > 0) {
+            return `${hours} hours ago`;
+          } else if (minutes > 0) {
+            return `${minutes} minutes ago`;
+          } else {
+            return `${seconds} seconds ago`;
+          }
+        }
+
+        {% comment %}                       
+        fetch(api_url, {
+          method: 'DELETE',
+        })
+          .then(response => {
+            if (response.ok) {
+              // DELETE request successful
+              console.log('Deleted successfully');
+            } else {
+              // DELETE request failed
+              console.log('Deletion failed');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+          }); {% endcomment %}
 
       </script>
+
 
       {{ redirect_to_login_immediately }}
     
