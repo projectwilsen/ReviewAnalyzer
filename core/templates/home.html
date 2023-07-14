@@ -5,7 +5,7 @@
 {% block content %}
 
   {% if messages %}
-    <div id = "alert" class="alert text-red-700 px-4 py-3 rounded relative" role="alert">
+    <div id = "alert" class="alert font-nunito text-red-700 px-4 py-3" role="alert">
       {% for message in messages %}
         <span class="block sm:inline">{{ message }}</span>
       {% endfor %}
@@ -87,6 +87,7 @@
                             name = "videoid" 
                             placeholder = "Paste your youtube video url here" 
                             class = "m-2 px-3 py-1.5 border shadow rounded w-5/6 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-red-600 inline lg:text-lg">
+                        {% comment %} <input type="hidden" name="button_id" id="buttonIdInput"> {% endcomment %}
                         <input 
                             type = "submit"
                             class = "m-2 px-3 py-1.5 rounded text-sm bg-red-600 text-white transition duration-300 ease-in-out hover:bg-black hover:shadow-lg lg:text-lg dark:hover:bg-white dark:hover:text-black">  
@@ -99,58 +100,71 @@
         </div>
     </section>
     <!-- Hero Section End -->
+    
+    <!-- History Section Start -->
+    <section id = "history" class = "pt-10 dark:bg-black">
+      <div class = "container">
+        <div class = "w-full px-10">
+          <h1 id = "history" class = 'font-roboto text-2xl font-base text-center lg:text-2xl lg:text-left lg:ml-2 lg:leading-none  dark:text-white'> 
+            My History
+          </h1>
+          <div class = "history flex flex-wrap pt-10 justify-start content-start gap-4 px-1">
+            
+            <!-- Auto Filled with JS-->
+
+          </div>
+        </div>
+      </div>
+    </section>
+    
 
     <!-- ChatBot Section Start -->
-    {% comment %} {% if context %} {% endcomment %}
-    <section id = "chatbot" class="pt-16 dark:bg-black">
-        <div class = "container text-center mx-auto">
-                <div class = "w-full px-4">
-                    <h1 class = 'font-roboto text-4xl font-medium text-center lg:text-6xl lg:text-left lg:ml-2 lg:leading-none  dark:text-white'> 
-                      Your result is out!
-                    </h1><br>
-                    <p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Video ID: {{ context.videoid}} </p>
-                    <p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Video Title: {{ context.videotitle}} </p><br>
-                    <p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-lg lg:text-left lg:ml-3 dark:text-white'>Statistic </p>
-                    <p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Total View: {{context.view}} </p>
-                    <p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Total Like: {{context.like}} </p>
-                    <p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Total Comment: {{context.comment}} </p><br>
-                    <form action = "chat" method = "POST" id = "form" class = "mt-3 text-center flex">
-                      {% csrf_token %}
-                        <input 
-                            type = "text" 
-                            name = "user_input" 
-                            placeholder = "Give me a summary of the comments in my video!" 
-                            class = "m-2 px-3 py-1.5 border shadow rounded w-5/6 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-red-600 inline lg:text-lg">
-                        <input 
-                            type = "submit"
-                            class = "m-2 px-3 py-1.5 rounded text-sm bg-red-600 text-white transition duration-300 ease-in-out hover:bg-black hover:shadow-lg lg:text-lg dark:hover:bg-white dark:hover:text-black">  
-                    </form>
-                </div>
 
-                {% if response %}
-                <br>
-                  <h1 class = "text-white text-left m-3 mt-5 p-10">
-                    {{response|safe}}
-                  </h1>
-                {% endif %}
+    <section id = "chatbot" class="py-20 dark:bg-black hidden">
+        <div class = "container">
+          <div class = "w-full px-10">
+            <h1 class = 'font-roboto text-4xl font-medium text-center lg:text-6xl lg:text-left lg:ml-2 lg:leading-none  dark:text-white'> 
+              Let's dive deeper together!
+            </h1>
+      
+            <br>
+
+            <div id = "chatbot_info">
+                  <p class = 'replace font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Video ID: {{source.videoid | default:"videoid"}} </p>
+                  <p class = 'replace font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Video Title: {{source.videotitle | default:"videotitle"}} </p><br>
+                  <p class = 'replace font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-lg lg:text-left lg:ml-3 dark:text-white'>Statistic </p>
+                  <p class = 'replace font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Total View: {{source.view | default:"view"}} </p>
+                  <p class = 'replace font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Total Like: {{source.like | default:"like"}} </p>
+                  <p class = 'replace font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Total Comment: {{source.comment | default:"comment"}} </p><br>
+      
+              </div>
+              <form action = "chat" method = "POST" id = "form_chat_bot" class = "mt-3 text-center flex">
+                {% csrf_token %}
+                  <input 
+                      type = "text" 
+                      name = "user_input" 
+                      placeholder = "Give me a summary of the comments in my video!" 
+                      class = "m-2 px-3 py-1.5 border shadow rounded w-full text-sm placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-red-600 inline lg:text-lg">
+                  <input type="hidden" name="button_id" id="buttonIdInput">
+                  <input 
+                      type = "submit"
+                      class = "m-2 px-3 py-1.5 rounded text-sm bg-red-600 text-white transition duration-300 ease-in-out hover:bg-black hover:shadow-lg lg:text-lg dark:hover:bg-white dark:hover:text-black">  
+              </form>
+          </div>
+
+          {% if response %}
+          <br>
+            <h1 class = "text-white text-left mt-3 ml-3 px-11">
+              {{response|safe}}
+            </h1>
+          {% endif %}
         </div>
     </section>
 
-    {% comment %} <script>
-      // Scroll to the bottom of the page
-      document.getElementById('chatbot').scrollIntoView({
-        behavior: 'smooth',
-        block: 'end',
-        inline: 'nearest'
-      });
-    </script> {% endcomment %}
-
-    {% comment %} {% endif %} {% endcomment %}
     <!-- ChatBot Section End -->
-
   
     <!-- Footer Start -->
-    <footer id = "footer" class="bg-dark pt-8 p-5 dark:bg-black">
+    <footer id = "footer" class="bg-dark p-5 dark:bg-black">
         <div class="container">
             {% comment %} <div class="mb-3 flex items-center justify-center">
               
@@ -189,6 +203,197 @@
         </div>
       </footer>
       <!-- Footer End -->
+
+      <script>
+        // Scroll to the bottom of the page
+        {% comment %} document.getElementById('chatbot').scrollIntoView({
+          behavior: 'smooth',
+          block: 'end',
+          inline: 'nearest'
+        }); {% endcomment %}
+  
+        document.addEventListener('DOMContentLoaded', function() {
+
+          // Make a fetch request to check if the user has data
+          var user = {{ request.user.pk }}
+          api_url = 'http://127.0.0.1:8000/result/'+ user
+          fetch(api_url)
+            .then(response => response.json())
+            .then(function(response){
+              if (typeof response[0] !== 'undefined') {
+                
+                // History
+                document.getElementById('history').style.display = 'block';
+
+                let history = '';
+                response.reverse().forEach(h => history += showHistory(h));
+                const historyContainer = document.querySelector('.history')
+                historyContainer.innerHTML = history;
+
+               
+                // Delete button
+                const close = document.querySelectorAll('.close')
+                console.log(close)
+
+                close.forEach(function(el) {
+                  el.addEventListener('click', function(e) {
+
+                    e.stopPropagation(); 
+                    e.preventDefault();
+
+                    //window.location.href = 'http://127.0.0.1:8000'
+                
+                    if (confirm("This action will permanently delete your history.\nAre you sure? ")) {
+                      
+              
+                      var buttonId = this.parentElement.getAttribute('data-id');
+                      var csrfToken = "{{ csrf_token }}";
+                      console.log(csrfToken)
+                                       
+                      fetch(api_url+'/'+buttonId, {
+                        method: 'DELETE',
+                        headers: {
+                          'X-CSRFToken': csrfToken
+                        }
+                      })
+                        .then(response => {
+                          if (response.ok) {
+                            // DELETE request successful
+                            console.log('Deleted successfully');
+                          } else {
+                            // DELETE request failed
+                            console.log('Deletion failed');
+                          }
+                        })
+                        .catch(error => {
+                          console.error('Error:', error);
+                        });
+
+                      e.target.parentElement.style.display = 'none';
+
+                      let totalButton = document.querySelectorAll('#history_button')
+                      console.log(totalButton.length)
+
+                      if (totalButton.length = 1) {
+                      
+                        window.location.href = 'http://127.0.0.1:8000';
+                      }
+                    }
+                  });
+                });
+
+                // History button
+                const history_button = document.querySelectorAll('#history_button')
+                console.log(history_button)
+                
+                history_button.forEach(function(button){
+                  button.addEventListener('click', function(e) {
+
+                    if (e.target.closest('.close')) {
+                      return; // Skip executing the history button's event
+                    }
+                    
+                    var buttonId = this.getAttribute('data-id');
+                    console.log(buttonId)
+
+                    
+                    document.getElementById('buttonIdInput').value = buttonId;
+                    document.getElementById('form_chat_bot').submit();
+                 
+
+                    // Chatbot Info
+                    fetch(api_url+'/'+buttonId)
+                      .then(response => response.json())
+                      .then(data => updateChatBot(data[0]));
+                  })
+                });
+                
+                // display chatbot
+                document.getElementById('chatbot').style.display = 'block';
+                
+                let isFirstLoad = true;
+                const buttons = document.querySelectorAll('#history_button');
+                console.log(buttons)
+                if (buttons.length > 0 && isFirstLoad) {
+                  console.log(buttons[0])
+                  //buttons[0].click();
+                  isFirstLoad = false;
+                }
+                
+              } else {
+                // User doesn't have data, hide the form
+                document.getElementById('history').style.display = 'none';
+                document.getElementById('chatbot').style.display = 'none';
+              }
+            })
+            .catch(function(error) {
+              console.log(error);
+            });
+            
+
+        });
+
+        function updateChatBot(chatbot_info){
+          const elementsToReplace = document.querySelectorAll('.replace');
+          let replacementContent = [chatbot_info.videoid, chatbot_info.videotitle,
+                                    chatbot_info.view, chatbot_info.like, chatbot_info.comment]
+   
+
+          elementsToReplace.forEach(function(element, index) {
+            var newElement = document.createElement('span');
+            newElement.textContent = replacementContent[index];
+
+            element.parentNode.replaceChild(newElement, element);
+          });
+        }
+
+
+        function showHistory(h) {
+
+          const djangoDate = new Date(h.created_at);
+          const currentDate = new Date();
+          
+          const timeDiff = currentDate.getTime() - djangoDate.getTime();
+          
+          const secondsDiff = Math.floor(timeDiff / 1000);
+        
+          // Calculate the elapsed days, hours, minutes, and seconds
+          const days = Math.floor(secondsDiff / (24 * 60 * 60));
+          const hours = Math.floor((secondsDiff % (24 * 60 * 60)) / (60 * 60));
+          const minutes = Math.floor((secondsDiff % (60 * 60)) / 60);
+          const seconds = Math.floor(secondsDiff % 60);
+        
+          return `<button id = "history_button" data-id = ${h.id} class="group text-left w-[380px] h-[100px] relative bg-white/10 p-5 rounded-lg backdrop-filter backdrop-blur-xl shadow-lg hover:bg-white transition duration-300 ease-in-out focus:bg-white">
+       
+                    <h1 class="font-nunito font-bold text-sm text-slate-100 group-hover:bg-gradient-to-b group-hover:from-red-600 group-hover:to-red-950 group-hover:bg-clip-text group-hover:text-transparent group-focus:bg-gradient-to-b group-focus:from-red-600 group-focus:to-red-950 group-focus:bg-clip-text group-focus:text-transparent">
+                      ${h.videotitle}
+                    </h1>
+                 
+                    <h1 class="font-nunito text-sm text-slate-400 mt-1 group-hover:text-black group-focus:text-black ">
+                      ${getTimeAgo(days, hours, minutes, seconds)}
+                    </h1>
+
+                    <a href="" class=" close font-nunito absolute pr-4 pt-1 text-slate-600 top-0 right-0 group-hover:text-black group-focus:text-black">
+                      x
+                    </a>
+                  </button>`;
+        }
+        
+        function getTimeAgo(days, hours, minutes, seconds) {
+          if (days > 0) {
+            return `${days} days ago`;
+          } else if (hours > 0) {
+            return `${hours} hours ago`;
+          } else if (minutes > 0) {
+            return `${minutes} minutes ago`;
+          } else {
+            return `${seconds} seconds ago`;
+          }
+        }
+
+
+      </script>
+
 
       {{ redirect_to_login_immediately }}
     

@@ -440,18 +440,51 @@ async def get_result(url, youtubeapikey, username, recipient_email):
 
 
 
-def answer_question(question,source):
+def answer_question(question,videoid, videotitle, view, like, comment, total_positive_comment, positive_comment, total_negative_comment, negative_comment):
 
     template = """
-    You are an intelligent chatbot that act as a senior data consultant. Anwer the following question with informative answers based on the source provided.
-    Question: Based on {source}, {question}
-    Answer:"""
+    You are an intelligent chatbot that act as a senior data consultant. 
+    Here is report of youtube video performance from your client:
+    The video title is {videotitle} with video id is {videoid}. 
 
-    prompt = PromptTemplate(template=template, input_variables=["question", "source"])
+    Here are some statistic of the video performance:
+    Total view (people viewing client's video): {view}
+    Total like (people liking client's video): {like}
+    Total comment (people commenting client's video): {comment}
+    Total negative comment (people giving negative comments to client's video): {total_negative_comment}
+    Total positive comment (people giving positive comments to client's video): {total_positive_comment}
+
+    Positive comments: {positive_comment}
+    Negative comments: {negative_comment} 
+
+    Answer the following question with the fact based on the report provided above. Don't hallucinating! Be concise and don't repeating the same thing
+    Question: {question}
+    Answer: your answer here be concise and specific
+    
+    """
+
+    prompt = PromptTemplate(
+        template=template, 
+        input_variables=[
+            "question","videoid","videotitle","view","like","comment",
+            "total_positive_comment", "positive_comment", "total_negative_comment",
+            "negative_comment"
+            ]
+        )
 
     llm_chain = LLMChain(prompt=prompt, llm=falcon_llm)
 
-    answer = llm_chain.run(question=question, source= source)
-    print(answer)
+    print("start working")
 
+    answer = llm_chain.run(
+        question=question, videoid = videoid, 
+        videotitle = videotitle, view = view, like = like, 
+        comment = comment, total_positive_comment = total_positive_comment, 
+        positive_comment = positive_comment, total_negative_comment = total_negative_comment,
+        negative_comment = negative_comment)
+    
+    print("answer ready")
+    
     return answer
+
+
