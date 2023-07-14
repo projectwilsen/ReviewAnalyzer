@@ -87,6 +87,7 @@
                             name = "videoid" 
                             placeholder = "Paste your youtube video url here" 
                             class = "m-2 px-3 py-1.5 border shadow rounded w-5/6 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-red-600 inline lg:text-lg">
+                        {% comment %} <input type="hidden" name="button_id" id="buttonIdInput"> {% endcomment %}
                         <input 
                             type = "submit"
                             class = "m-2 px-3 py-1.5 rounded text-sm bg-red-600 text-white transition duration-300 ease-in-out hover:bg-black hover:shadow-lg lg:text-lg dark:hover:bg-white dark:hover:text-black">  
@@ -129,14 +130,13 @@
             <br>
 
             <div id = "chatbot_info">
-                <script type="text/template" id="template">            
-                  <p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Video ID: {{source.videoid | default:"videoid"}} </p>
-                  <p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Video Title: {{source.videotitle | default:"videotitle"}} </p><br>
-                  <p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-lg lg:text-left lg:ml-3 dark:text-white'>Statistic </p>
-                  <p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Total View: {{source.view | default:"view"}} </p>
-                  <p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Total Like: {{source.like | default:"like"}} </p>
-                  <p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Total Comment: {{source.comment | default:"comment"}} </p><br>
-                </script>  
+                  <p class = 'replace font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Video ID: {{source.videoid | default:"videoid"}} </p>
+                  <p class = 'replace font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Video Title: {{source.videotitle | default:"videotitle"}} </p><br>
+                  <p class = 'replace font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-lg lg:text-left lg:ml-3 dark:text-white'>Statistic </p>
+                  <p class = 'replace font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Total View: {{source.view | default:"view"}} </p>
+                  <p class = 'replace font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Total Like: {{source.like | default:"like"}} </p>
+                  <p class = 'replace font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Total Comment: {{source.comment | default:"comment"}} </p><br>
+      
               </div>
               <form action = "chat" method = "POST" id = "form_chat_bot" class = "mt-3 text-center flex">
                 {% csrf_token %}
@@ -145,6 +145,7 @@
                       name = "user_input" 
                       placeholder = "Give me a summary of the comments in my video!" 
                       class = "m-2 px-3 py-1.5 border shadow rounded w-full text-sm placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-red-600 inline lg:text-lg">
+                  <input type="hidden" name="button_id" id="buttonIdInput">
                   <input 
                       type = "submit"
                       class = "m-2 px-3 py-1.5 rounded text-sm bg-red-600 text-white transition duration-300 ease-in-out hover:bg-black hover:shadow-lg lg:text-lg dark:hover:bg-white dark:hover:text-black">  
@@ -212,6 +213,7 @@
         }); {% endcomment %}
   
         document.addEventListener('DOMContentLoaded', function() {
+
           // Make a fetch request to check if the user has data
           var user = {{ request.user.pk }}
           api_url = 'http://127.0.0.1:8000/result/'+ user
@@ -227,14 +229,19 @@
                 response.reverse().forEach(h => history += showHistory(h));
                 const historyContainer = document.querySelector('.history')
                 historyContainer.innerHTML = history;
-                
+
+               
                 // Delete button
                 const close = document.querySelectorAll('.close')
                 console.log(close)
 
                 close.forEach(function(el) {
                   el.addEventListener('click', function(e) {
+
+                    e.stopPropagation(); 
                     e.preventDefault();
+
+                    //window.location.href = 'http://127.0.0.1:8000'
                 
                     if (confirm("This action will permanently delete your history.\nAre you sure? ")) {
                       
@@ -263,6 +270,14 @@
                         });
 
                       e.target.parentElement.style.display = 'none';
+
+                      let totalButton = document.querySelectorAll('#history_button')
+                      console.log(totalButton.length)
+
+                      if (totalButton.length = 1) {
+                      
+                        window.location.href = 'http://127.0.0.1:8000';
+                      }
                     }
                   });
                 });
@@ -273,41 +288,37 @@
                 
                 history_button.forEach(function(button){
                   button.addEventListener('click', function(e) {
-                    //e.preventDefault()
+
+                    if (e.target.closest('.close')) {
+                      return; // Skip executing the history button's event
+                    }
+                    
                     var buttonId = this.getAttribute('data-id');
                     console.log(buttonId)
 
-                    // Chatbot (New)
-                    //document.getElementById('chatbot').style.display = 'block';
-                    //console.log(api_url+'/'+buttonId)
-                    //fetch(api_url+'/'+buttonId)
-                      //.then(response => response.json())
-                      //.then(data => showChatBot(data[0]));
+                    
+                    document.getElementById('buttonIdInput').value = buttonId;
+                    document.getElementById('form_chat_bot').submit();
+                 
+
+                    // Chatbot Info
+                    fetch(api_url+'/'+buttonId)
+                      .then(response => response.json())
+                      .then(data => updateChatBot(data[0]));
                   })
                 });
-
                 
-                  
-                // Chatbot (Old)
+                // display chatbot
                 document.getElementById('chatbot').style.display = 'block';
-
-                var defaultVideoId = "{{ source.videoid|default:'videoid' }}";
-                var defaultVideoTitle = "{{ source.videotitle|default:'videotitle' }}";
-                var defaultTotalView = "{{ source.view|default:'view' }}";
-                var defaultTotalLike = "{{ source.like|default:'like' }}";
-                var defaultTotalComment = "{{ source.comment|default:'comment' }}";
-
-                var latestData = response[response.length - 1];
-                var latestData = response[0];
-                var template = document.getElementById('template').innerHTML;
-            
-                var filledTemplate = template.replace("{{ source.videoid|default:'videoid' }}", latestData.videoid || defaultVideoId)
-                  .replace("{{ source.videotitle|default:'videotitle' }}", latestData.videotitle || defaultVideoTitle)
-                  .replace("{{ source.view|default:'view' }}", latestData.view || defaultTotalView)
-                  .replace("{{ source.like|default:'like' }}", latestData.like || defaultTotalLike)
-                  .replace("{{ source.comment|default:'comment' }}", latestData.comment || defaultTotalComment)
-
-                document.getElementById('chatbot_info').innerHTML = filledTemplate;
+                
+                let isFirstLoad = true;
+                const buttons = document.querySelectorAll('#history_button');
+                console.log(buttons)
+                if (buttons.length > 0 && isFirstLoad) {
+                  console.log(buttons[0])
+                  //buttons[0].click();
+                  isFirstLoad = false;
+                }
                 
               } else {
                 // User doesn't have data, hide the form
@@ -318,22 +329,23 @@
             .catch(function(error) {
               console.log(error);
             });
+            
+
         });
 
-        function showChatBot(chatbot_info){
+        function updateChatBot(chatbot_info){
+          const elementsToReplace = document.querySelectorAll('.replace');
+          let replacementContent = [chatbot_info.videoid, chatbot_info.videotitle,
+                                    chatbot_info.view, chatbot_info.like, chatbot_info.comment]
+   
 
-          let filledTemplate =''
+          elementsToReplace.forEach(function(element, index) {
+            var newElement = document.createElement('span');
+            newElement.textContent = replacementContent[index];
 
-          filledTemplate = `<p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Video ID: ${chatbot_info.videoid} </p>
-                  <p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Video Title: ${chatbot_info.videotitle} </p><br>
-                  <p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-lg lg:text-left lg:ml-3 dark:text-white'>Statistic </p>
-                  <p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Total View: ${chatbot_info.view} </p>
-                  <p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Total Like: ${chatbot_info.like} </p>
-                  <p class = 'font-nunito text-center mt-3 text-sm font-medium text-slate-600 lg:text-base lg:text-left lg:ml-3 dark:text-slate-200'>Total Comment: ${chatbot_info.comment} </p><br>`
-
-          document.getElementById('chatbot_info').innerHTML = filledTemplate;
+            element.parentNode.replaceChild(newElement, element);
+          });
         }
-
 
 
         function showHistory(h) {
@@ -357,7 +369,7 @@
                       ${h.videotitle}
                     </h1>
                  
-                    <h1 class="font-nunito text-sm text-slate-400 mt-1 group-hover:text-black group-focus:text-black">
+                    <h1 class="font-nunito text-sm text-slate-400 mt-1 group-hover:text-black group-focus:text-black ">
                       ${getTimeAgo(days, hours, minutes, seconds)}
                     </h1>
 
@@ -379,22 +391,6 @@
           }
         }
 
-        {% comment %}                       
-        fetch(api_url, {
-          method: 'DELETE',
-        })
-          .then(response => {
-            if (response.ok) {
-              // DELETE request successful
-              console.log('Deleted successfully');
-            } else {
-              // DELETE request failed
-              console.log('Deletion failed');
-            }
-          })
-          .catch(error => {
-            console.error('Error:', error);
-          }); {% endcomment %}
 
       </script>
 

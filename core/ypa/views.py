@@ -343,7 +343,7 @@ def getoutput(request):
             print(serializer.errors) 
 
         return render(request, "home.html", {"source":source})
-        # return redirect('chat')
+        # return redirect('home')
 
     else:
         return render(request, "home.html")
@@ -415,22 +415,40 @@ def getoutput(request):
 
 #     return(render(request, "home.html", {"response":answer , "source:source"}))
 
+
+id = None
+
 @login_required(login_url='login')
 def chat(request):
 
     
     user = request.user.pk
-    # button_id = request.GET.get('button_id')
+    username = request.user
+    button_id = request.POST.get('button_id')
 
-    api_url = f'http://127.0.0.1:8000/result/{user}'
+
+    if button_id != '':
+        print('y')
+        global id
+        id = button_id 
+        print(button_id)
+        api_url = f'http://127.0.0.1:8000/result/{user}/{button_id}'
+        print(api_url)
+    else:
+        print('n')
+        api_url = f'http://127.0.0.1:8000/result/{user}/{id}'
+        print(api_url)
+
     response = requests.get(api_url)
 
     if response.status_code == 200:
         data = response.json()
-        source = data[-1]
+        print(data)
+        source = data[0]
         print(source)
     else:
         print('Error:', response.status_code)
+
     
     videoid = source['videoid'],
     videotitle= source['videotitle'],
@@ -444,14 +462,18 @@ def chat(request):
 
     if request.method == 'POST':
         user_input = request.POST.get('user_input')
-        print(user_input)
 
-        answer = answer_question(
-            user_input, videoid, videotitle, view, like, comment,
-            total_positive_comment, positive_comment, 
-            total_negative_comment, negative_comment)
+        if user_input != '':
+            
+            answer = answer_question(
+                user_input, videoid, videotitle, view, like, comment,
+                total_positive_comment, positive_comment, 
+                total_negative_comment, negative_comment)
 
-        print(answer)
+            print(answer)
+        
+        else:
+            answer = f"Hey {username}! Let's deep dive into your report together. You can ask me anything, start from asking advice, summarizing your video's comment, and many more!"
 
     return(render(request, "home.html", {"response":answer, "source":source}))
 
