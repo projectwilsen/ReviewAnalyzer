@@ -1,15 +1,14 @@
-from urllib import response
 from googleapiclient.discovery import build
 
 from textblob import TextBlob
 import nltk
 
 import pandas as pd
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import os
 
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter
+# from reportlab.pdfgen import canvas
+# from reportlab.lib.pagesizes import letter
 
 from langchain import HuggingFaceHub
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -18,17 +17,18 @@ from langchain import PromptTemplate,  LLMChain
 import textwrap
 from transformers import pipeline
 
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.base import MIMEBase
-from email.mime.text import MIMEText
-from email import encoders
+# import smtplib
+# from email.mime.multipart import MIMEMultipart
+# from email.mime.base import MIMEBase
+# from email.mime.text import MIMEText
+# from email import encoders
 
 from io import BytesIO
 from dotenv import load_dotenv, find_dotenv
 
 import asyncio
 
+from urllib import response
 from urllib.parse import urlparse, parse_qs
 
 import time
@@ -172,23 +172,25 @@ async def comment_threads(youtube, videoID, channelID=None, to_csv=False):
 
     return comment_df
 
-async def sentiment_barchart(df):
-    sentiment_counts = df['sentiment'].value_counts()
-    colors = ['#A93E38']
+# === CREATE A SENTIMENT BARCHART ===
 
-    # Plotting the bar chart
-    plt.bar(sentiment_counts.index, sentiment_counts.values, color = colors)
-    plt.xlabel('Sentiment')
-    plt.ylabel('Count')
-    plt.title('Sentiment Analysis')
+# async def sentiment_barchart(df):
+#     sentiment_counts = df['sentiment'].value_counts()
+#     colors = ['#A93E38']
 
-    for i, count in enumerate(sentiment_counts.values):
-        plt.text(i, count, str(count), ha='center', va='top')
+#     # Plotting the bar chart
+#     plt.bar(sentiment_counts.index, sentiment_counts.values, color = colors)
+#     plt.xlabel('Sentiment')
+#     plt.ylabel('Count')
+#     plt.title('Sentiment Analysis')
 
-    temp_image = f"temp_plot_{time.time()}.png"  # Unique temporary image file name
-    plt.savefig(temp_image)
+#     for i, count in enumerate(sentiment_counts.values):
+#         plt.text(i, count, str(count), ha='center', va='top')
 
-    return temp_image
+#     temp_image = f"temp_plot_{time.time()}.png"  # Unique temporary image file name
+#     plt.savefig(temp_image)
+
+#     return temp_image
 
 def draw_text_with_wrap(canvas, text, x, y, width):
     lines = []
@@ -286,146 +288,147 @@ async def summary_of_comments(df,things = 'positive'):
 
 #     return wrapped_text
 
+# === GENERATE PDF ===
 
-async def generate_pdf(videoid,stats,temp_image,positive,negative):
+# async def generate_pdf(videoid,stats,temp_image,positive,negative):
     
-    buffer = BytesIO()
+#     buffer = BytesIO()
 
-    # Create a new canvas
-    c = canvas.Canvas(buffer, pagesize=letter)
+#     # Create a new canvas
+#     c = canvas.Canvas(buffer, pagesize=letter)
 
-    # Set the initial y-coordinate for writing the text
-    y = 700
+#     # Set the initial y-coordinate for writing the text
+#     y = 700
 
-    # Write the video title as the sub title
-    header = "Youtube Video Performance Analysis : {}".format(videoid)
-    c.setFont('Helvetica-Bold', 18)
-    c.drawString(50, y, header)
-    y -= 30
-    c.setFont('Helvetica-Bold', 14)
-    sub_title_1 = "Statistic"
-    c.drawString(50, y, sub_title_1)
-    c.setFont('Helvetica', 12)
-    y -= 30
+#     # Write the video title as the sub title
+#     header = "Youtube Video Performance Analysis : {}".format(videoid)
+#     c.setFont('Helvetica-Bold', 18)
+#     c.drawString(50, y, header)
+#     y -= 30
+#     c.setFont('Helvetica-Bold', 14)
+#     sub_title_1 = "Statistic"
+#     c.drawString(50, y, sub_title_1)
+#     c.setFont('Helvetica', 12)
+#     y -= 30
 
-    # Write specific video stats to the PDF
-    stat_labels = {'title': 'Title', 'viewCount': 'Total View',
-                   'likeCount': 'Total Like', 'commentCount': 'Total Comment'}
-    for key, label in stat_labels.items():
-        value = stats.get(key, '')
-        text = '{}: {}'.format(label, value)
-        c.drawString(50, y, text)
-        y -= 15
-
-
-    y -= 30
-    c.setFont('Helvetica-Bold', 14)
-    sub_title_2 = "Sentiment Analysis"
-    c.drawString(50, y, sub_title_2)
-
-    y -= 30
-    c.setFont('Helvetica', 12)
-
-    # Draw the barchart in the PDF
-    canvas_width = 612  # Width of the canvas (letter size)
-    image_width = 400  # Width of the image
-
-    x = (canvas_width - image_width) / 2
-    c.drawImage(temp_image, x=x, y=290, width=image_width, height=255)
-
-    y -= 260
-    c.setFont('Helvetica-Bold', 12)
-    sub_title_3 = "Summary of Positive Sentiment Comments"
-    c.drawString(50, y, sub_title_3)
-
-    y -= 30
-    c.setFont('Helvetica', 11)
-    y = draw_text_with_wrap(c, positive, 50, y, 500)
-
-    y -= 20
-    c.setFont('Helvetica-Bold', 12)
-    sub_title_4 = "Summary of Negative Sentiment Comments"
-    c.drawString(50, y, sub_title_4)
-
-    y -= 30
-    c.setFont('Helvetica', 11)
-    y = draw_text_with_wrap(c, negative, 50, y, 500)
-
-    c.showPage()
-    c.save()
-
-    buffer.seek(0)
-
-    # Retrieve the PDF content as bytes
-    pdf_content = buffer.getvalue()
-
-    print("PDF generated successfully!")
+#     # Write specific video stats to the PDF
+#     stat_labels = {'title': 'Title', 'viewCount': 'Total View',
+#                    'likeCount': 'Total Like', 'commentCount': 'Total Comment'}
+#     for key, label in stat_labels.items():
+#         value = stats.get(key, '')
+#         text = '{}: {}'.format(label, value)
+#         c.drawString(50, y, text)
+#         y -= 15
 
 
-    # Return the PDF content
-    return pdf_content, temp_image
+#     y -= 30
+#     c.setFont('Helvetica-Bold', 14)
+#     sub_title_2 = "Sentiment Analysis"
+#     c.drawString(50, y, sub_title_2)
+
+#     y -= 30
+#     c.setFont('Helvetica', 12)
+
+#     # Draw the barchart in the PDF
+#     canvas_width = 612  # Width of the canvas (letter size)
+#     image_width = 400  # Width of the image
+
+#     x = (canvas_width - image_width) / 2
+#     c.drawImage(temp_image, x=x, y=290, width=image_width, height=255)
+
+#     y -= 260
+#     c.setFont('Helvetica-Bold', 12)
+#     sub_title_3 = "Summary of Positive Sentiment Comments"
+#     c.drawString(50, y, sub_title_3)
+
+#     y -= 30
+#     c.setFont('Helvetica', 11)
+#     y = draw_text_with_wrap(c, positive, 50, y, 500)
+
+#     y -= 20
+#     c.setFont('Helvetica-Bold', 12)
+#     sub_title_4 = "Summary of Negative Sentiment Comments"
+#     c.drawString(50, y, sub_title_4)
+
+#     y -= 30
+#     c.setFont('Helvetica', 11)
+#     y = draw_text_with_wrap(c, negative, 50, y, 500)
+
+#     c.showPage()
+#     c.save()
+
+#     buffer.seek(0)
+
+#     # Retrieve the PDF content as bytes
+#     pdf_content = buffer.getvalue()
+
+#     print("PDF generated successfully!")
 
 
-async def send_email_with_attachment(videoid,sender_email, sender_password, recipient_email, subject, message, attachment_content):
-    # Create a multipart message object
-    message_obj = MIMEMultipart()
-    message_obj["From"] = sender_email
-    message_obj["To"] = recipient_email
-    message_obj["Subject"] = subject
-
-    # Add the message body
-    message_obj.attach(MIMEText(message, "plain"))
-
-    # Create a MIME base object with the attachment content
-    part = MIMEBase("application", "octet-stream")
-    part.set_payload(attachment_content)
-
-    # Encode the attachment with base64
-    encoders.encode_base64(part)
-
-    # Set the filename and header for the attachment
-    part.add_header(
-        "Content-Disposition",
-        f"attachment; filename=report_{videoid}.pdf"
-    )
-
-    # Attach the attachment to the message object
-    message_obj.attach(part)
-
-    # Connect to the SMTP server (Gmail's SMTP server in this example)
-    with smtplib.SMTP("smtp.gmail.com", 587) as server:
-        # Initiate TLS connection
-        server.starttls()
-        # Login to the email account
-        server.login(sender_email, sender_password)
-        # Send the email
-        server.send_message(message_obj)
-
-    print("Email sent successfully!")
+#     # Return the PDF content
+#     return pdf_content, temp_image
 
 
-async def process_data_and_send_email(url, youtubeapikey, username, recipient_email):
-    parsed_url = urlparse(url)
-    query_params = parse_qs(parsed_url.query)
-    videoid = query_params.get('v', [''])[0]
+# async def send_email_with_attachment(videoid,sender_email, sender_password, recipient_email, subject, message, attachment_content):
+#     # Create a multipart message object
+#     message_obj = MIMEMultipart()
+#     message_obj["From"] = sender_email
+#     message_obj["To"] = recipient_email
+#     message_obj["Subject"] = subject
 
-    subject = f"Hey {username}! Your Report is Out! Check it Now"
-    message = f"We have analyzed your video ({videoid}), and this is the result!"
+#     # Add the message body
+#     message_obj.attach(MIMEText(message, "plain"))
 
-    youtube = build("youtube", "v3", developerKey= youtubeapikey)
+#     # Create a MIME base object with the attachment content
+#     part = MIMEBase("application", "octet-stream")
+#     part.set_payload(attachment_content)
 
-    stats = await video_stats(youtube, videoid)
-    df = await comment_threads(youtube, videoID=videoid)
-    temp_image = await sentiment_barchart(df)
-    # positive = await summary_of_comments(df,'positive')
-    # negative = await summary_of_comments(df,'negative')
-    pdf, temp_image_path = await generate_pdf(videoid,stats,temp_image,"positive","negative")
-    await send_email_with_attachment(videoid,'projectwilsen@gmail.com', os.environ.get('email_pass'), recipient_email, subject, message, pdf)
+#     # Encode the attachment with base64
+#     encoders.encode_base64(part)
 
-    # Remove the temporary image file
-    os.remove(temp_image_path)
+#     # Set the filename and header for the attachment
+#     part.add_header(
+#         "Content-Disposition",
+#         f"attachment; filename=report_{videoid}.pdf"
+#     )
 
-    return "Process completed successfully."
+#     # Attach the attachment to the message object
+#     message_obj.attach(part)
+
+#     # Connect to the SMTP server (Gmail's SMTP server in this example)
+#     with smtplib.SMTP("smtp.gmail.com", 587) as server:
+#         # Initiate TLS connection
+#         server.starttls()
+#         # Login to the email account
+#         server.login(sender_email, sender_password)
+#         # Send the email
+#         server.send_message(message_obj)
+
+#     print("Email sent successfully!")
+
+
+# async def process_data_and_send_email(url, youtubeapikey, username, recipient_email):
+#     parsed_url = urlparse(url)
+#     query_params = parse_qs(parsed_url.query)
+#     videoid = query_params.get('v', [''])[0]
+
+#     subject = f"Hey {username}! Your Report is Out! Check it Now"
+#     message = f"We have analyzed your video ({videoid}), and this is the result!"
+
+#     youtube = build("youtube", "v3", developerKey= youtubeapikey)
+
+#     stats = await video_stats(youtube, videoid)
+#     df = await comment_threads(youtube, videoID=videoid)
+#     temp_image = await sentiment_barchart(df)
+#     # positive = await summary_of_comments(df,'positive')
+#     # negative = await summary_of_comments(df,'negative')
+#     pdf, temp_image_path = await generate_pdf(videoid,stats,temp_image,"positive","negative")
+#     await send_email_with_attachment(videoid,'projectwilsen@gmail.com', os.environ.get('email_pass'), recipient_email, subject, message, pdf)
+
+#     # Remove the temporary image file
+#     os.remove(temp_image_path)
+
+#     return "Process completed successfully."
 
 async def get_result(url, youtubeapikey, username, recipient_email):
     parsed_url = urlparse(url)

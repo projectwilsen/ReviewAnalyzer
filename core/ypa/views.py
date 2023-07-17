@@ -24,7 +24,7 @@ from googleapiclient.discovery import build
 import pandas as pd
 import os
 import io
-import csv
+# import csv
 
 from dotenv import load_dotenv
 
@@ -34,14 +34,17 @@ from urllib.parse import urlparse, parse_qs
 import asyncio
 from threading import Thread
 
-from maincodes import generate_pdf, send_email_with_attachment
-from maincodes_async_await import process_data_and_send_email, get_result, answer_question
+# from maincodes import generate_pdf, send_email_with_attachment
+from maincodes_async_await import get_result, answer_question
+# process_data_and_send_email ( ditambah ini kalo butuh)
 
-import matplotlib
-matplotlib.use('Agg')  # Set the Agg backend
-import matplotlib.pyplot as plt
+# import matplotlib
+# matplotlib.use('Agg')  # Set the Agg backend
+# import matplotlib.pyplot as plt
 
 load_dotenv()
+
+
 
 
 def signuppage(request):
