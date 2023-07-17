@@ -223,37 +223,48 @@ rm = 'deepset/roberta-base-squad2'
 
 question_answerer = pipeline("question-answering", model=rm)
 
-# async def summary_of_comments(df,things = 'positive'):
-#     filtered_comment = df[df['sentiment'] == things]
-#     comment_text = ';'.join(filtered_comment['comment_text']).replace('\n','')
+async def summary_of_comments(df,things = 'positive'):
 
-#     text_splitter = RecursiveCharacterTextSplitter(chunk_size=500)
-#     comment_doc = text_splitter.create_documents([comment_text])
+    print(f"start summary of {things} comments")
 
-#     output = {}
-#     for i in comment_doc:
-#         result = question_answerer(question= f"What {things} things does the user/audience feel?", context= i.page_content) #str(i)
-#         output[result['answer']] = round(result['score'], 4)
-#         print(f"Answer: '{result['answer']}', score: {round(result['score'], 4)}, start: {result['start']}, end: {result['end']}")
-        
-#     keys_set = set(output.keys())
-#     keys_sentence = '; '.join([key for key in keys_set])
-#     print(keys_sentence)
+    filtered_comment = df[df['sentiment'] == things]
 
-#     docs = text_splitter.create_documents([keys_sentence])
-#     print('done splitting')
+    if len(filtered_comment) != 0:
+    
+        comment_text = ';'.join(filtered_comment['comment_text']).replace('\n','')
 
-#     chain = load_summarize_chain(falcon_llm, chain_type="map_reduce", verbose=True)
-#     print(chain.llm_chain.prompt.template)
-#     print(chain.combine_document_chain.llm_chain.prompt.template)
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=500)
+        comment_doc = text_splitter.create_documents([comment_text])
 
-#     output_summary = chain.run(docs)
-#     wrapped_text = textwrap.fill(
-#         output_summary, width=100, break_long_words=False, replace_whitespace=False
-#     )
-#     print(wrapped_text)
+        output = {}
+        for i in comment_doc:
+            result = question_answerer(question= f"What {things} things does the user/audience feel?", context= i.page_content) #str(i)
+            output[result['answer']] = round(result['score'], 4)
+            print(f"Answer: '{result['answer']}', score: {round(result['score'], 4)}, start: {result['start']}, end: {result['end']}")
+            
+        keys_set = set(output.keys())
+        keys_sentence = '; '.join([key for key in keys_set])
+        print(keys_sentence)
 
-    # return wrapped_text
+        docs = text_splitter.create_documents([keys_sentence])
+        print('done splitting')
+
+        chain = load_summarize_chain(falcon_llm, chain_type="map_reduce", verbose=True)
+        print(chain.llm_chain.prompt.template)
+        print(chain.combine_document_chain.llm_chain.prompt.template)
+
+        output_summary = chain.run(docs)
+        wrapped_text = textwrap.fill(
+            output_summary, width=100, break_long_words=False, replace_whitespace=False
+        )
+        print(wrapped_text)
+
+        print(f"done summary of {things} comments")
+
+        return wrapped_text
+    
+    else:
+        return f"There is no {things} comment"
 
 
 # async def summary_of_comments(df,things = 'positive'):
@@ -425,13 +436,13 @@ async def get_result(url, youtubeapikey, username, recipient_email):
 
     stats = await video_stats(youtube, videoid)
     df = await comment_threads(youtube, videoID=videoid)
-    # positive = await summary_of_comments(df,'positive')
-    positive = 'positive'
-    # negative = await summary_of_comments(df,'negative')
-    negative = 'negative'
+    positive = await summary_of_comments(df,'positive')
+    negative = await summary_of_comments(df,'negative')
+    # neutral = await summary_of_comments(df,'neutral')
+    neutral = "neutral"
 
 
-    return stats,df,videoid,positive,negative
+    return stats,df,videoid,positive,negative, neutral
 
     # temp_image = await sentiment_barchart(df)
 
@@ -440,7 +451,7 @@ async def get_result(url, youtubeapikey, username, recipient_email):
 
 
 
-def answer_question(question,videoid, videotitle, view, like, comment, total_positive_comment, positive_comment, total_negative_comment, negative_comment):
+def answer_question(question,videoid, videotitle, view, like, comment, total_positive_comment, positive_comment, total_negative_comment, negative_comment, total_neutral_comment, neutral_comment):
 
     template = """
     You are an intelligent chatbot that act as a senior data consultant. 
@@ -453,9 +464,11 @@ def answer_question(question,videoid, videotitle, view, like, comment, total_pos
     Total comment (people commenting client's video): {comment}
     Total negative comment (people giving negative comments to client's video): {total_negative_comment}
     Total positive comment (people giving positive comments to client's video): {total_positive_comment}
+    Total neutral comment (people giving neutral comments to client's video): {total_neutral_comment}
 
     Positive comments: {positive_comment}
     Negative comments: {negative_comment} 
+    Neutral comments: {neutral_comment} 
 
     Answer the following question with the fact based on the report provided above. Don't hallucinating! Be concise and don't repeating the same thing
     Question: {question}
@@ -468,7 +481,7 @@ def answer_question(question,videoid, videotitle, view, like, comment, total_pos
         input_variables=[
             "question","videoid","videotitle","view","like","comment",
             "total_positive_comment", "positive_comment", "total_negative_comment",
-            "negative_comment"
+            "negative_comment", "total_neutral_comment", "neutral_comment"
             ]
         )
 
@@ -481,7 +494,8 @@ def answer_question(question,videoid, videotitle, view, like, comment, total_pos
         videotitle = videotitle, view = view, like = like, 
         comment = comment, total_positive_comment = total_positive_comment, 
         positive_comment = positive_comment, total_negative_comment = total_negative_comment,
-        negative_comment = negative_comment)
+        negative_comment = negative_comment, total_neutral_comment = total_neutral_comment,
+        neutral_comment = neutral_comment)
     
     print("answer ready")
     

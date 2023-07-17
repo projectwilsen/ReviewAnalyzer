@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+from django.urls import reverse
 
 
 
@@ -263,7 +264,7 @@ def getoutput(request):
         recipient_email = recipient.email
 
         async def run_async():
-            stats, df, videoid, positive, negative = await get_result(url, youtubeapikey, username, recipient_email)
+            stats, df, videoid, positive, negative, neutral = await get_result(url, youtubeapikey, username, recipient_email)
 
             source = {
                 # if using API 'user' should be added
@@ -278,6 +279,7 @@ def getoutput(request):
                 'total_neutral_comment': len(df[df['sentiment'] == 'neutral']),
                 'positive_comment': positive,
                 'negative_comment': negative,
+                'neutral_comment': neutral,
             }
 
             return source
@@ -336,14 +338,24 @@ def getoutput(request):
 
         # 3. SAVE INTO DB USING API
 
-        serializer = ResultSerializer(data = source)
+        serializer = ResultSerializer(data=source)
         if serializer.is_valid():
-            serializer.save()
+            # Check if a record with the same videoid exists
+            try:
+                result = Result.objects.get(user=request.user, videoid=source['videoid'])
+                serializer.update(result, serializer.validated_data)
+            except Result.DoesNotExist:
+                result = serializer.save()
+
+
+        # serializer = ResultSerializer(data = source)
+        # if serializer.is_valid():
+        #     result = serializer.save()
+
+            return redirect(reverse('chat') + f'?id={result.id}')
         else:
             print(serializer.errors) 
 
-        return render(request, "home.html", {"source":source})
-        # return redirect('home')
 
     else:
         return render(request, "home.html")
@@ -416,34 +428,43 @@ def getoutput(request):
 #     return(render(request, "home.html", {"response":answer , "source:source"}))
 
 
-id = None
-
+last_id = None
 @login_required(login_url='login')
 def chat(request):
+
+    global last_id
 
     
     user = request.user.pk
     username = request.user
+
     button_id = request.POST.get('button_id')
+    print(button_id)
+
+    id = request.GET.get('id')
+    print(id)
 
 
-    if button_id != '':
+    if button_id is not None and button_id != '':
         print('y')
-        global id
-        id = button_id 
+        last_id = button_id 
         print(button_id)
         api_url = f'http://127.0.0.1:8000/result/{user}/{button_id}'
         print(api_url)
     else:
         print('n')
-        api_url = f'http://127.0.0.1:8000/result/{user}/{id}'
-        print(api_url)
+        if id != None:
+            api_url = f'http://127.0.0.1:8000/result/{user}/{id}'
+            print(api_url)
+            last_id = id
+        else:
+            api_url = f'http://127.0.0.1:8000/result/{user}/{last_id}'
+            print(api_url)
 
     response = requests.get(api_url)
 
     if response.status_code == 200:
         data = response.json()
-        print(data)
         source = data[0]
         print(source)
     else:
@@ -459,21 +480,29 @@ def chat(request):
     positive_comment = source['positive_comment'],
     total_negative_comment = source['total_negative_comment'],
     negative_comment = source['negative_comment']
+    total_neutral_comment = source['total_neutral_comment'],
+    neutral_comment = source['neutral_comment']
 
-    if request.method == 'POST':
+    if request.method == 'POST' or request.method == 'GET':
         user_input = request.POST.get('user_input')
+        print(user_input)
 
-        if user_input != '':
+        if user_input is not None and user_input != '':
             
             answer = answer_question(
                 user_input, videoid, videotitle, view, like, comment,
                 total_positive_comment, positive_comment, 
-                total_negative_comment, negative_comment)
+                total_negative_comment, negative_comment,
+                total_neutral_comment, neutral_comment)
 
             print(answer)
         
         else:
-            answer = f"Hey {username}! Let's deep dive into your report together. You can ask me anything, start from asking advice, summarizing your video's comment, and many more!"
+            answer = f'''Hey there, {username}! Let's dive deep into your report together. 
+                    Feel free to ask me anything you'd like, whether it's seeking advice, 
+                    summarizing the comments on your video, or exploring other fascinating insights! 
+                    We're here to make your experience as engaging and informative as possible!'''
+            print(answer)
 
     return(render(request, "home.html", {"response":answer, "source":source}))
 
