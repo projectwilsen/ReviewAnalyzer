@@ -348,10 +348,6 @@ def getoutput(request):
                 result = serializer.save()
 
 
-        # serializer = ResultSerializer(data = source)
-        # if serializer.is_valid():
-        #     result = serializer.save()
-
             return redirect(reverse('chat') + f'?id={result.id}')
         else:
             print(serializer.errors) 
@@ -543,9 +539,7 @@ def result_list_by_user(request,user):
     #         return Response(serializer.data)
     #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    # elif request.method == 'DELETE':
-    #     result.delete()
-    #     return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 @api_view(['GET', 'PUT', 'DELETE'])
 def result_details(request,user,id):
