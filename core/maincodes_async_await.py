@@ -1,7 +1,7 @@
 from googleapiclient.discovery import build
 
-from textblob import TextBlob
-import nltk
+# from textblob import TextBlob
+# import nltk
 
 import pandas as pd
 # import matplotlib.pyplot as plt
@@ -10,12 +10,12 @@ import os
 # from reportlab.pdfgen import canvas
 # from reportlab.lib.pagesizes import letter
 
-from langchain import HuggingFaceHub
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.chains.summarize import load_summarize_chain
-from langchain import PromptTemplate,  LLMChain
-import textwrap
-from transformers import pipeline
+# from langchain import HuggingFaceHub
+# from langchain.text_splitter import RecursiveCharacterTextSplitter
+# from langchain.chains.summarize import load_summarize_chain
+# from langchain import PromptTemplate,  LLMChain
+# import textwrap
+# from transformers import pipeline
 
 # import smtplib
 # from email.mime.multipart import MIMEMultipart
@@ -213,60 +213,60 @@ def draw_text_with_wrap(canvas, text, x, y, width):
 
     return y
 
-load_dotenv(find_dotenv())
-HUGGINGFACEHUB_API_TOKEN = os.environ["huggingfacehub_api_token"]
+# load_dotenv(find_dotenv())
+# HUGGINGFACEHUB_API_TOKEN = os.environ["huggingfacehub_api_token"]
 
-repo_id = "tiiuae/falcon-7b-instruct"  
-falcon_llm = HuggingFaceHub(
-    repo_id=repo_id, model_kwargs={"temperature": 0.5, "max_new_tokens": 425}
-)
+# repo_id = "tiiuae/falcon-7b-instruct"  
+# falcon_llm = HuggingFaceHub(
+#     repo_id=repo_id, model_kwargs={"temperature": 0.5, "max_new_tokens": 425}
+# )
 
-rm = 'deepset/roberta-base-squad2'
+# rm = 'deepset/roberta-base-squad2'
 
-question_answerer = pipeline("question-answering", model=rm)
+# question_answerer = pipeline("question-answering", model=rm)
 
-async def summary_of_comments(df,things = 'positive'):
+# async def summary_of_comments(df,things = 'positive'):
 
-    print(f"start summary of {things} comments")
+#     print(f"start summary of {things} comments")
 
-    filtered_comment = df[df['sentiment'] == things]
+#     filtered_comment = df[df['sentiment'] == things]
 
-    if len(filtered_comment) != 0:
+#     if len(filtered_comment) != 0:
     
-        comment_text = ';'.join(filtered_comment['comment_text']).replace('\n','')
+#         comment_text = ';'.join(filtered_comment['comment_text']).replace('\n','')
 
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=500)
-        comment_doc = text_splitter.create_documents([comment_text])
+#         text_splitter = RecursiveCharacterTextSplitter(chunk_size=500)
+#         comment_doc = text_splitter.create_documents([comment_text])
 
-        output = {}
-        for i in comment_doc:
-            result = question_answerer(question= f"What {things} things does the user/audience feel?", context= i.page_content) #str(i)
-            output[result['answer']] = round(result['score'], 4)
-            print(f"Answer: '{result['answer']}', score: {round(result['score'], 4)}, start: {result['start']}, end: {result['end']}")
+#         output = {}
+#         for i in comment_doc:
+#             result = question_answerer(question= f"What {things} things does the user/audience feel?", context= i.page_content) #str(i)
+#             output[result['answer']] = round(result['score'], 4)
+#             print(f"Answer: '{result['answer']}', score: {round(result['score'], 4)}, start: {result['start']}, end: {result['end']}")
             
-        keys_set = set(output.keys())
-        keys_sentence = '; '.join([key for key in keys_set])
-        print(keys_sentence)
+#         keys_set = set(output.keys())
+#         keys_sentence = '; '.join([key for key in keys_set])
+#         print(keys_sentence)
 
-        docs = text_splitter.create_documents([keys_sentence])
-        print('done splitting')
+#         docs = text_splitter.create_documents([keys_sentence])
+#         print('done splitting')
 
-        chain = load_summarize_chain(falcon_llm, chain_type="map_reduce", verbose=True)
-        print(chain.llm_chain.prompt.template)
-        print(chain.combine_document_chain.llm_chain.prompt.template)
+#         chain = load_summarize_chain(falcon_llm, chain_type="map_reduce", verbose=True)
+#         print(chain.llm_chain.prompt.template)
+#         print(chain.combine_document_chain.llm_chain.prompt.template)
 
-        output_summary = chain.run(docs)
-        wrapped_text = textwrap.fill(
-            output_summary, width=100, break_long_words=False, replace_whitespace=False
-        )
-        print(wrapped_text)
+#         output_summary = chain.run(docs)
+#         wrapped_text = textwrap.fill(
+#             output_summary, width=100, break_long_words=False, replace_whitespace=False
+#         )
+#         print(wrapped_text)
 
-        print(f"done summary of {things} comments")
+#         print(f"done summary of {things} comments")
 
-        return wrapped_text
+#         return wrapped_text
     
-    else:
-        return f"There is no {things} comment"
+#     else:
+        # return f"There is no {things} comment"
 
 
 # async def summary_of_comments(df,things = 'positive'):
@@ -430,78 +430,78 @@ async def summary_of_comments(df,things = 'positive'):
 
 #     return "Process completed successfully."
 
-async def get_result(url, youtubeapikey, username, recipient_email):
-    parsed_url = urlparse(url)
-    query_params = parse_qs(parsed_url.query)
-    videoid = query_params.get('v', [''])[0]
+# async def get_result(url, youtubeapikey, username, recipient_email):
+#     parsed_url = urlparse(url)
+#     query_params = parse_qs(parsed_url.query)
+#     videoid = query_params.get('v', [''])[0]
 
-    youtube = build("youtube", "v3", developerKey= youtubeapikey)
+#     youtube = build("youtube", "v3", developerKey= youtubeapikey)
 
-    stats = await video_stats(youtube, videoid)
-    df = await comment_threads(youtube, videoID=videoid)
-    positive = await summary_of_comments(df,'positive')
-    negative = await summary_of_comments(df,'negative')
-    # neutral = await summary_of_comments(df,'neutral')
-    neutral = "neutral"
-
-
-    return stats,df,videoid,positive,negative, neutral
-
-    # temp_image = await sentiment_barchart(df)
-
-    # Remove the temporary image file
-    # os.remove(temp_image_path)
+#     stats = await video_stats(youtube, videoid)
+#     df = await comment_threads(youtube, videoID=videoid)
+#     positive = await summary_of_comments(df,'positive')
+#     negative = await summary_of_comments(df,'negative')
+#     # neutral = await summary_of_comments(df,'neutral')
+#     neutral = "neutral"
 
 
+#     return stats,df,videoid,positive,negative, neutral
 
-def answer_question(question,videoid, videotitle, view, like, comment, total_positive_comment, positive_comment, total_negative_comment, negative_comment, total_neutral_comment, neutral_comment):
+#     # temp_image = await sentiment_barchart(df)
 
-    template = """
-    You are an intelligent chatbot that act as a senior data consultant. 
-    Here is report of youtube video performance from your client:
-    The video title is {videotitle} with video id is {videoid}. 
+#     # Remove the temporary image file
+#     # os.remove(temp_image_path)
 
-    Here are some statistic of the video performance:
-    Total view (people viewing client's video): {view}
-    Total like (people liking client's video): {like}
-    Total comment (people commenting client's video): {comment}
-    Total negative comment (people giving negative comments to client's video): {total_negative_comment}
-    Total positive comment (people giving positive comments to client's video): {total_positive_comment}
-    Total neutral comment (people giving neutral comments to client's video): {total_neutral_comment}
 
-    Positive comments: {positive_comment}
-    Negative comments: {negative_comment} 
-    Neutral comments: {neutral_comment} 
 
-    Answer the following question with the fact based on the report provided above. Don't hallucinating! Be concise and don't repeating the same thing
-    Question: {question}
-    Answer: your answer here be concise and specific
+# def answer_question(question,videoid, videotitle, view, like, comment, total_positive_comment, positive_comment, total_negative_comment, negative_comment, total_neutral_comment, neutral_comment):
+
+#     template = """
+#     You are an intelligent chatbot that act as a senior data consultant. 
+#     Here is report of youtube video performance from your client:
+#     The video title is {videotitle} with video id is {videoid}. 
+
+#     Here are some statistic of the video performance:
+#     Total view (people viewing client's video): {view}
+#     Total like (people liking client's video): {like}
+#     Total comment (people commenting client's video): {comment}
+#     Total negative comment (people giving negative comments to client's video): {total_negative_comment}
+#     Total positive comment (people giving positive comments to client's video): {total_positive_comment}
+#     Total neutral comment (people giving neutral comments to client's video): {total_neutral_comment}
+
+#     Positive comments: {positive_comment}
+#     Negative comments: {negative_comment} 
+#     Neutral comments: {neutral_comment} 
+
+#     Answer the following question with the fact based on the report provided above. Don't hallucinating! Be concise and don't repeating the same thing
+#     Question: {question}
+#     Answer: your answer here be concise and specific
     
-    """
+#     """
 
-    prompt = PromptTemplate(
-        template=template, 
-        input_variables=[
-            "question","videoid","videotitle","view","like","comment",
-            "total_positive_comment", "positive_comment", "total_negative_comment",
-            "negative_comment", "total_neutral_comment", "neutral_comment"
-            ]
-        )
+#     prompt = PromptTemplate(
+#         template=template, 
+#         input_variables=[
+#             "question","videoid","videotitle","view","like","comment",
+#             "total_positive_comment", "positive_comment", "total_negative_comment",
+#             "negative_comment", "total_neutral_comment", "neutral_comment"
+#             ]
+#         )
 
-    llm_chain = LLMChain(prompt=prompt, llm=falcon_llm)
+#     llm_chain = LLMChain(prompt=prompt, llm=falcon_llm)
 
-    print("start working")
+#     print("start working")
 
-    answer = llm_chain.run(
-        question=question, videoid = videoid, 
-        videotitle = videotitle, view = view, like = like, 
-        comment = comment, total_positive_comment = total_positive_comment, 
-        positive_comment = positive_comment, total_negative_comment = total_negative_comment,
-        negative_comment = negative_comment, total_neutral_comment = total_neutral_comment,
-        neutral_comment = neutral_comment)
+#     answer = llm_chain.run(
+#         question=question, videoid = videoid, 
+#         videotitle = videotitle, view = view, like = like, 
+#         comment = comment, total_positive_comment = total_positive_comment, 
+#         positive_comment = positive_comment, total_negative_comment = total_negative_comment,
+#         negative_comment = negative_comment, total_neutral_comment = total_neutral_comment,
+#         neutral_comment = neutral_comment)
     
-    print("answer ready")
+#     print("answer ready")
     
-    return answer
+#     return answer
 
 
