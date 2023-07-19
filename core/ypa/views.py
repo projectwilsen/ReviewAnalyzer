@@ -24,6 +24,7 @@ from googleapiclient.discovery import build
 import pandas as pd
 import os
 import io
+import json
 # import csv
 
 from dotenv import load_dotenv
@@ -36,15 +37,13 @@ from threading import Thread
 
 # from maincodes import generate_pdf, send_email_with_attachment
 from maincodes_async_await import get_result, answer_question
-# process_data_and_send_email ( ditambah ini kalo butuh)
+# ,process_data_and_send_email ( ditambah ini kalo butuh)
 
 # import matplotlib
 # matplotlib.use('Agg')  # Set the Agg backend
 # import matplotlib.pyplot as plt
 
 load_dotenv()
-
-
 
 
 def signuppage(request):
@@ -427,6 +426,85 @@ def getoutput(request):
 #     return(render(request, "home.html", {"response":answer , "source:source"}))
 
 
+# last_id = None
+# @login_required(login_url='login')
+# def chat(request):
+
+#     global last_id
+
+    
+#     user = request.user.pk
+#     username = request.user
+
+#     button_id = request.POST.get('button_id')
+#     print(button_id)
+
+#     id = request.GET.get('id')
+#     print(id)
+
+
+#     if button_id is not None and button_id != '':
+#         print('y')
+#         last_id = button_id 
+#         print(button_id)
+#         api_url = f'http://127.0.0.1:8000/result/{user}/{button_id}'
+#         print(api_url)
+#     else:
+#         print('n')
+#         if id != None:
+#             api_url = f'http://127.0.0.1:8000/result/{user}/{id}'
+#             print(api_url)
+#             last_id = id
+#         else:
+#             api_url = f'http://127.0.0.1:8000/result/{user}/{last_id}'
+#             print(api_url)
+
+#     response = requests.get(api_url)
+
+#     if response.status_code == 200:
+#         data = response.json()
+#         source = data[0]
+#         print(source)
+#     else:
+#         print('Error:', response.status_code)
+
+    
+#     videoid = source['videoid'],
+#     videotitle= source['videotitle'],
+#     view = source['view'],
+#     like = source['like'],
+#     comment = source['comment'],
+#     total_positive_comment = source['total_positive_comment'],
+#     positive_comment = source['positive_comment'],
+#     total_negative_comment = source['total_negative_comment'],
+#     negative_comment = source['negative_comment']
+#     total_neutral_comment = source['total_neutral_comment'],
+#     neutral_comment = source['neutral_comment']
+
+#     if request.method == 'POST' or request.method == 'GET':
+#         user_input = request.POST.get('user_input')
+#         print(user_input)
+
+#         if user_input is not None and user_input != '':
+            
+#             answer = answer_question(
+#                 user_input, videoid, videotitle, view, like, comment,
+#                 total_positive_comment, positive_comment, 
+#                 total_negative_comment, negative_comment,
+#                 total_neutral_comment, neutral_comment)
+
+#             print(answer)
+        
+#         else:
+#             answer = f'''Hey there, {username}! Let's dive deep into your report together. 
+#                     Feel free to ask me anything you'd like, whether it's seeking advice, 
+#                     summarizing the comments on your video, or exploring other fascinating insights! 
+#                     We're here to make your experience as engaging and informative as possible!'''
+#             print(answer)
+
+#     return(render(request, "home.html", {"response":answer, "source":source}))
+
+
 last_id = None
 @login_required(login_url='login')
 def chat(request):
@@ -470,17 +548,17 @@ def chat(request):
         print('Error:', response.status_code)
 
     
-    videoid = source['videoid'],
-    videotitle= source['videotitle'],
-    view = source['view'],
-    like = source['like'],
-    comment = source['comment'],
-    total_positive_comment = source['total_positive_comment'],
-    positive_comment = source['positive_comment'],
-    total_negative_comment = source['total_negative_comment'],
-    negative_comment = source['negative_comment']
-    total_neutral_comment = source['total_neutral_comment'],
-    neutral_comment = source['neutral_comment']
+    # videoid = source['videoid'],
+    # videotitle= source['videotitle'],
+    # view = source['view'],
+    # like = source['like'],
+    # comment = source['comment'],
+    # total_positive_comment = source['total_positive_comment'],
+    # positive_comment = source['positive_comment'],
+    # total_negative_comment = source['total_negative_comment'],
+    # negative_comment = source['negative_comment']
+    # total_neutral_comment = source['total_neutral_comment'],
+    # neutral_comment = source['neutral_comment']
 
     if request.method == 'POST' or request.method == 'GET':
         user_input = request.POST.get('user_input')
@@ -488,11 +566,35 @@ def chat(request):
 
         if user_input is not None and user_input != '':
             
-            answer = answer_question(
-                user_input, videoid, videotitle, view, like, comment,
-                total_positive_comment, positive_comment, 
-                total_negative_comment, negative_comment,
-                total_neutral_comment, neutral_comment)
+            headers = {
+                "accept":"application/json",
+                "Content-Type":"application/json"
+            }
+
+            json_data = {
+                "question": user_input,
+                "videoid" : source['videoid'],
+                "videotitle": source['videotitle'],
+                "view" : source['view'],
+                "like" : source['like'],
+                "comment" : source['comment'],
+                "total_positive_comment" : source['total_positive_comment'],
+                "positive_comment" : source['positive_comment'],
+                "total_negative_comment" : source['total_negative_comment'],
+                "negative_comment" : source['negative_comment'],
+                "total_neutral_comment" : source['total_neutral_comment'],
+                "neutral_comment" : source['neutral_comment']
+            }
+
+
+            response = requests.post(
+                "https://ralangchainapp-1-k6134029.deta.app/chatbot_chain.chat/run", headers = headers, json = json_data
+            )
+
+            data = response.text
+            parsed_data = json.loads(data)
+            print(parsed_data)
+            answer = parsed_data['output']
 
             print(answer)
         

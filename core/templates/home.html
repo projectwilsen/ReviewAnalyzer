@@ -307,19 +307,19 @@
                 
                 // CHATBOT SECTION
                 document.getElementById('chatbot').style.display = 'block';
-                
-          
+              
                 const currentURL = window.location.href;
                 const mainPageURL = 'http://127.0.0.1:8000/';
-
+                
                 // Check if the current URL is the main page URL
-                if (currentURL === mainPageURL || currentURL.includes('http://127.0.0.1:8000/chat?id=')) {
-                  localStorage.removeItem('focusedElementDataId');
+
+                if (currentURL === mainPageURL || currentURL.includes('http://127.0.0.1:8000/chat?id=') ) {
+             
+                  
                   const firstButton = document.querySelector('#history_button');
-                  if (firstButton) {
-                    firstButton.click();
-                    //storeFocusedElement(response[0].id);
-                  }
+                  firstButton.click()
+                  //localStorage.setItem('focusedElementDataId',response[0].id)
+
                 }
                 else {
                     const chatbot = document.getElementById('chatbot')
@@ -330,9 +330,8 @@
                       inline: 'nearest'
                     });
                 }
-                
-                
-                window.addEventListener('load', restoreFocus());
+
+                window.addEventListener('load', restoreFocus(response));
 
                 
               } else {
@@ -406,27 +405,58 @@
           }
         }
 
-        function storeFocusedElement(id = null) {
+        {% comment %} function storeFocusedElement(response) {
 
-          if (id === null){
             const focusedElement = document.activeElement;
-            console.log(focusedElement)
             if (focusedElement) {
               const focusedElementDataId = focusedElement.getAttribute('data-id');
-              localStorage.setItem('focusedElementDataId', focusedElementDataId);
+              console.log(focusedElementDataId)
+              if (!focusedElementDataId) {
+                // Use the default value from response[0].id
+                const defaultValue = response[0].id;
+                console.log(defaultValue)
+                localStorage.setItem('focusedElementDataId', defaultValue);
+              } else {
+                // If focusedElementDataId is not null, store it in local storage
+                localStorage.setItem('focusedElementDataId', focusedElementDataId);
+              }
             }
-          } else {
-            localStorage.setItem('focusedElementDataId', id)
+
+        } {% endcomment %}
+
+        function storeFocusedElement() {
+
+          const focusedElement = document.activeElement;
+          console.log(focusedElement)
+          if (focusedElement) {
+            const focusedElementDataId = focusedElement.getAttribute('data-id');
+            localStorage.setItem('focusedElementDataId', focusedElementDataId);
           }
         }
 
-        function restoreFocus() {
+        {% comment %} function restoreFocus() {
           const focusedElementDataId = localStorage.getItem('focusedElementDataId');
           if (focusedElementDataId) {
             const focusedElement = document.querySelector(`[data-id="${focusedElementDataId}"]`);
             console.log(focusedElement)
             if (focusedElement) {
               focusedElement.focus();
+            }
+          }
+        } {% endcomment %}
+
+        function restoreFocus(response) {
+          const focusedElementDataId = localStorage.getItem('focusedElementDataId');
+          if (focusedElementDataId) {
+            const focusedElement = document.querySelector(`[data-id="${focusedElementDataId}"]`);
+            if (focusedElement) {
+              console.log('clicked', focusedElement)
+              focusedElement.focus();
+            }
+            else{
+              const defaultElement = document.querySelector(`[data-id="${response[0].id}"]`);
+              console.log('default', defaultElement)
+              defaultElement.focus()
             }
           }
         }

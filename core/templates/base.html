@@ -25,9 +25,12 @@
         } else {
           document.documentElement.classList.remove('dark');
         }
-      </script>
+    </script>
 
     <title>Review Analyzer</title>
+
+    <script src= "{% static 'dist/js/script.js' %}"></script>
+
 </head>
 <body>
     {% comment %} {% if messages %}
@@ -50,8 +53,8 @@
 
     {% endblock %}
 
-    <!-- Bootstrap JS CDN -->
-    <script src= "{% static 'dist/js/script.js' %}"></script>
+    {% comment %} <!-- Bootstrap JS CDN -->
+    <script src= "{% static 'dist/js/script.js' %}"></script> {% endcomment %}
 
 </body>
 </html>
