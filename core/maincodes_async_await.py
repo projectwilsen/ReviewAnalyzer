@@ -172,7 +172,8 @@ async def comment_threads(youtube, videoID, channelID=None, to_csv=False):
 
     return comment_df
 
-# === CREATE A SENTIMENT BARCHART ===
+
+# ============================= CREATE A SENTIMENT BARCHART =============================
 
 # async def sentiment_barchart(df):
 #     sentiment_counts = df['sentiment'].value_counts()
@@ -192,26 +193,28 @@ async def comment_threads(youtube, videoID, channelID=None, to_csv=False):
 
 #     return temp_image
 
-def draw_text_with_wrap(canvas, text, x, y, width):
-    lines = []
-    current_line = ""
-    words = text.split()
+# ============================= ADD SPACE WHILE GENERATE PDF =============================
 
-    for word in words:
-        if canvas.stringWidth(current_line + " " + word) < width:
-            current_line += " " + word
-        else:
-            lines.append(current_line.strip())
-            current_line = word
+# def draw_text_with_wrap(canvas, text, x, y, width):
+#     lines = []
+#     current_line = ""
+#     words = text.split()
 
-    if current_line != "":
-        lines.append(current_line.strip())
+#     for word in words:
+#         if canvas.stringWidth(current_line + " " + word) < width:
+#             current_line += " " + word
+#         else:
+#             lines.append(current_line.strip())
+#             current_line = word
 
-    for line in lines:
-        canvas.drawString(x, y, line)
-        y -= 15
+#     if current_line != "":
+#         lines.append(current_line.strip())
 
-    return y
+#     for line in lines:
+#         canvas.drawString(x, y, line)
+#         y -= 15
+
+#     return y
 
 # load_dotenv(find_dotenv())
 # HUGGINGFACEHUB_API_TOKEN = os.environ["huggingfacehub_api_token"]
@@ -224,6 +227,8 @@ def draw_text_with_wrap(canvas, text, x, y, width):
 # rm = 'deepset/roberta-base-squad2'
 
 # question_answerer = pipeline("question-answering", model=rm)
+
+# ============================= SUMMARIZE COMMENT =============================
 
 # async def summary_of_comments(df,things = 'positive'):
 
@@ -269,6 +274,8 @@ def draw_text_with_wrap(canvas, text, x, y, width):
         # return f"There is no {things} comment"
 
 
+# ============================= SUMMARIZE COMMENT =============================
+
 # async def summary_of_comments(df,things = 'positive'):
 #     filtered_comment = df[df['sentiment'] == things]
 #     comment_text = ';'.join(filtered_comment['comment_text']).replace('\n','')
@@ -288,7 +295,8 @@ def draw_text_with_wrap(canvas, text, x, y, width):
 
 #     return wrapped_text
 
-# === GENERATE PDF ===
+
+# ============================= GENERATE PDF =============================
 
 # async def generate_pdf(videoid,stats,temp_image,positive,negative):
     
@@ -369,6 +377,8 @@ def draw_text_with_wrap(canvas, text, x, y, width):
 #     return pdf_content, temp_image
 
 
+# ============================= SEND EMAIL =============================
+
 # async def send_email_with_attachment(videoid,sender_email, sender_password, recipient_email, subject, message, attachment_content):
 #     # Create a multipart message object
 #     message_obj = MIMEMultipart()
@@ -407,6 +417,8 @@ def draw_text_with_wrap(canvas, text, x, y, width):
 #     print("Email sent successfully!")
 
 
+# ============================= PROCESS DATA AND SEND EMAIL =============================
+
 # async def process_data_and_send_email(url, youtubeapikey, username, recipient_email):
 #     parsed_url = urlparse(url)
 #     query_params = parse_qs(parsed_url.query)
@@ -430,29 +442,32 @@ def draw_text_with_wrap(canvas, text, x, y, width):
 
 #     return "Process completed successfully."
 
-# async def get_result(url, youtubeapikey, username, recipient_email):
-#     parsed_url = urlparse(url)
-#     query_params = parse_qs(parsed_url.query)
-#     videoid = query_params.get('v', [''])[0]
+async def get_result(url, youtubeapikey, username, recipient_email):
+    parsed_url = urlparse(url)
+    query_params = parse_qs(parsed_url.query)
+    videoid = query_params.get('v', [''])[0]
 
-#     youtube = build("youtube", "v3", developerKey= youtubeapikey)
+    youtube = build("youtube", "v3", developerKey= youtubeapikey)
 
-#     stats = await video_stats(youtube, videoid)
-#     df = await comment_threads(youtube, videoID=videoid)
-#     positive = await summary_of_comments(df,'positive')
-#     negative = await summary_of_comments(df,'negative')
-#     # neutral = await summary_of_comments(df,'neutral')
-#     neutral = "neutral"
-
-
-#     return stats,df,videoid,positive,negative, neutral
-
-#     # temp_image = await sentiment_barchart(df)
-
-#     # Remove the temporary image file
-#     # os.remove(temp_image_path)
+    stats = await video_stats(youtube, videoid)
+    df = await comment_threads(youtube, videoID=videoid)
+    # positive = await summary_of_comments(df,'positive')
+    positive = "positive"
+    # negative = await summary_of_comments(df,'negative')
+    negative = "negative"
+    # neutral = await summary_of_comments(df,'neutral')
+    neutral = "neutral"
 
 
+    return stats,df,videoid,positive,negative, neutral
+
+    # temp_image = await sentiment_barchart(df)
+
+    # Remove the temporary image file
+    # os.remove(temp_image_path)
+
+
+# === CHAT BOT === (don't use it anymore since already using API: https://ralangchainapp-1-k6134029.deta.app)
 
 # def answer_question(question,videoid, videotitle, view, like, comment, total_positive_comment, positive_comment, total_negative_comment, negative_comment, total_neutral_comment, neutral_comment):
 

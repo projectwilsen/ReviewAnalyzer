@@ -36,8 +36,9 @@ import asyncio
 from threading import Thread
 
 # from maincodes import generate_pdf, send_email_with_attachment
-from maincodes_async_await import get_result, answer_question
-# ,process_data_and_send_email ( ditambah ini kalo butuh)
+from maincodes_async_await import get_result
+# , answer_question (chatbot - now already using API: https://ralangchainapp-1-k6134029.deta.app)
+# , process_data_and_send_email ( send email )
 
 # import matplotlib
 # matplotlib.use('Agg')  # Set the Agg backend
@@ -547,8 +548,10 @@ def chat(request):
     else:
         print('Error:', response.status_code)
 
+
+    # 2. Using Function from maincodes_async_await.py
     
-    # videoid = source['videoid'],
+    # videoid = source['videoid'], 
     # videotitle= source['videotitle'],
     # view = source['view'],
     # like = source['like'],
@@ -566,6 +569,8 @@ def chat(request):
 
         if user_input is not None and user_input != '':
             
+            # 1. Using API 
+            
             headers = {
                 "accept":"application/json",
                 "Content-Type":"application/json"
@@ -574,7 +579,7 @@ def chat(request):
             json_data = {
                 "question": user_input,
                 "videoid" : source['videoid'],
-                "videotitle": source['videotitle'],
+                "videotitle": source['videotitle'], 
                 "view" : source['view'],
                 "like" : source['like'],
                 "comment" : source['comment'],
@@ -595,6 +600,14 @@ def chat(request):
             parsed_data = json.loads(data)
             print(parsed_data)
             answer = parsed_data['output']
+
+#           # 2. Using Function from maincodes_async_await.py
+
+            # answer = answer_question(
+            #   user_input, videoid, videotitle, view, like, comment,
+            #   total_positive_comment, positive_comment,
+            #   total_negative_comment, negative_comment,
+            #   total_neutral_comment, neutral_comment)
 
             print(answer)
         
