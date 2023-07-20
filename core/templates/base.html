@@ -25,11 +25,12 @@
         } else {
           document.documentElement.classList.remove('dark');
         }
-      </script>
+    </script>
 
     <title>Review Analyzer</title>
+
 </head>
-<body>
+<body data-user-id = "{{ context.user_id }}">
     {% comment %} {% if messages %}
       <div id = "alert" class="alert text-red-700 mx-5 px-4 py-3 rounded relative text-center" role="alert">
         {% for message in messages %}
@@ -47,11 +48,10 @@
     <!-- Content -->
     {% block content %}
 
-
+    
     {% endblock %}
-
-    <!-- Bootstrap JS CDN -->
-    <script src= "{% static 'dist/js/script.js' %}"></script>
+    
+    <script src= "{% static 'dist/scripts.js' %}"></script> 
 
 </body>
 </html>

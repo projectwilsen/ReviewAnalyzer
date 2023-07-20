@@ -1,34 +1,34 @@
-from urllib import response
 from googleapiclient.discovery import build
 
 from textblob import TextBlob
 import nltk
 
 import pandas as pd
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import os
 
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter
+# from reportlab.pdfgen import canvas
+# from reportlab.lib.pagesizes import letter
 
-from langchain import HuggingFaceHub
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.chains.summarize import load_summarize_chain
-from langchain import PromptTemplate,  LLMChain
-import textwrap
-from transformers import pipeline
+# from langchain import HuggingFaceHub
+# from langchain.text_splitter import RecursiveCharacterTextSplitter
+# from langchain.chains.summarize import load_summarize_chain
+# from langchain import PromptTemplate,  LLMChain
+# import textwrap
+# from transformers import pipeline
 
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.base import MIMEBase
-from email.mime.text import MIMEText
-from email import encoders
+# import smtplib
+# from email.mime.multipart import MIMEMultipart
+# from email.mime.base import MIMEBase
+# from email.mime.text import MIMEText
+# from email import encoders
 
 from io import BytesIO
 from dotenv import load_dotenv, find_dotenv
 
 import asyncio
 
+from urllib import response
 from urllib.parse import urlparse, parse_qs
 
 import time
@@ -172,100 +172,109 @@ async def comment_threads(youtube, videoID, channelID=None, to_csv=False):
 
     return comment_df
 
-async def sentiment_barchart(df):
-    sentiment_counts = df['sentiment'].value_counts()
-    colors = ['#A93E38']
 
-    # Plotting the bar chart
-    plt.bar(sentiment_counts.index, sentiment_counts.values, color = colors)
-    plt.xlabel('Sentiment')
-    plt.ylabel('Count')
-    plt.title('Sentiment Analysis')
+# ============================= CREATE A SENTIMENT BARCHART =============================
 
-    for i, count in enumerate(sentiment_counts.values):
-        plt.text(i, count, str(count), ha='center', va='top')
+# async def sentiment_barchart(df):
+#     sentiment_counts = df['sentiment'].value_counts()
+#     colors = ['#A93E38']
 
-    temp_image = f"temp_plot_{time.time()}.png"  # Unique temporary image file name
-    plt.savefig(temp_image)
+#     # Plotting the bar chart
+#     plt.bar(sentiment_counts.index, sentiment_counts.values, color = colors)
+#     plt.xlabel('Sentiment')
+#     plt.ylabel('Count')
+#     plt.title('Sentiment Analysis')
 
-    return temp_image
+#     for i, count in enumerate(sentiment_counts.values):
+#         plt.text(i, count, str(count), ha='center', va='top')
 
-def draw_text_with_wrap(canvas, text, x, y, width):
-    lines = []
-    current_line = ""
-    words = text.split()
+#     temp_image = f"temp_plot_{time.time()}.png"  # Unique temporary image file name
+#     plt.savefig(temp_image)
 
-    for word in words:
-        if canvas.stringWidth(current_line + " " + word) < width:
-            current_line += " " + word
-        else:
-            lines.append(current_line.strip())
-            current_line = word
+#     return temp_image
 
-    if current_line != "":
-        lines.append(current_line.strip())
+# ============================= ADD SPACE WHILE GENERATE PDF =============================
 
-    for line in lines:
-        canvas.drawString(x, y, line)
-        y -= 15
+# def draw_text_with_wrap(canvas, text, x, y, width):
+#     lines = []
+#     current_line = ""
+#     words = text.split()
 
-    return y
+#     for word in words:
+#         if canvas.stringWidth(current_line + " " + word) < width:
+#             current_line += " " + word
+#         else:
+#             lines.append(current_line.strip())
+#             current_line = word
 
-load_dotenv(find_dotenv())
-HUGGINGFACEHUB_API_TOKEN = os.environ["huggingfacehub_api_token"]
+#     if current_line != "":
+#         lines.append(current_line.strip())
 
-repo_id = "tiiuae/falcon-7b-instruct"  
-falcon_llm = HuggingFaceHub(
-    repo_id=repo_id, model_kwargs={"temperature": 0.5, "max_new_tokens": 425}
-)
+#     for line in lines:
+#         canvas.drawString(x, y, line)
+#         y -= 15
 
-rm = 'deepset/roberta-base-squad2'
+#     return y
 
-question_answerer = pipeline("question-answering", model=rm)
+# load_dotenv(find_dotenv())
+# HUGGINGFACEHUB_API_TOKEN = os.environ["huggingfacehub_api_token"]
 
-async def summary_of_comments(df,things = 'positive'):
+# repo_id = "tiiuae/falcon-7b-instruct"  
+# falcon_llm = HuggingFaceHub(
+#     repo_id=repo_id, model_kwargs={"temperature": 0.5, "max_new_tokens": 425}
+# )
 
-    print(f"start summary of {things} comments")
+# rm = 'deepset/roberta-base-squad2'
 
-    filtered_comment = df[df['sentiment'] == things]
+# question_answerer = pipeline("question-answering", model=rm)
 
-    if len(filtered_comment) != 0:
+# ============================= SUMMARIZE COMMENT =============================
+
+# async def summary_of_comments(df,things = 'positive'):
+
+#     print(f"start summary of {things} comments")
+
+#     filtered_comment = df[df['sentiment'] == things]
+
+#     if len(filtered_comment) != 0:
     
-        comment_text = ';'.join(filtered_comment['comment_text']).replace('\n','')
+#         comment_text = ';'.join(filtered_comment['comment_text']).replace('\n','')
 
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=500)
-        comment_doc = text_splitter.create_documents([comment_text])
+#         text_splitter = RecursiveCharacterTextSplitter(chunk_size=500)
+#         comment_doc = text_splitter.create_documents([comment_text])
 
-        output = {}
-        for i in comment_doc:
-            result = question_answerer(question= f"What {things} things does the user/audience feel?", context= i.page_content) #str(i)
-            output[result['answer']] = round(result['score'], 4)
-            print(f"Answer: '{result['answer']}', score: {round(result['score'], 4)}, start: {result['start']}, end: {result['end']}")
+#         output = {}
+#         for i in comment_doc:
+#             result = question_answerer(question= f"What {things} things does the user/audience feel?", context= i.page_content) #str(i)
+#             output[result['answer']] = round(result['score'], 4)
+#             print(f"Answer: '{result['answer']}', score: {round(result['score'], 4)}, start: {result['start']}, end: {result['end']}")
             
-        keys_set = set(output.keys())
-        keys_sentence = '; '.join([key for key in keys_set])
-        print(keys_sentence)
+#         keys_set = set(output.keys())
+#         keys_sentence = '; '.join([key for key in keys_set])
+#         print(keys_sentence)
 
-        docs = text_splitter.create_documents([keys_sentence])
-        print('done splitting')
+#         docs = text_splitter.create_documents([keys_sentence])
+#         print('done splitting')
 
-        chain = load_summarize_chain(falcon_llm, chain_type="map_reduce", verbose=True)
-        print(chain.llm_chain.prompt.template)
-        print(chain.combine_document_chain.llm_chain.prompt.template)
+#         chain = load_summarize_chain(falcon_llm, chain_type="map_reduce", verbose=True)
+#         print(chain.llm_chain.prompt.template)
+#         print(chain.combine_document_chain.llm_chain.prompt.template)
 
-        output_summary = chain.run(docs)
-        wrapped_text = textwrap.fill(
-            output_summary, width=100, break_long_words=False, replace_whitespace=False
-        )
-        print(wrapped_text)
+#         output_summary = chain.run(docs)
+#         wrapped_text = textwrap.fill(
+#             output_summary, width=100, break_long_words=False, replace_whitespace=False
+#         )
+#         print(wrapped_text)
 
-        print(f"done summary of {things} comments")
+#         print(f"done summary of {things} comments")
 
-        return wrapped_text
+#         return wrapped_text
     
-    else:
-        return f"There is no {things} comment"
+#     else:
+        # return f"There is no {things} comment"
 
+
+# ============================= SUMMARIZE COMMENT =============================
 
 # async def summary_of_comments(df,things = 'positive'):
 #     filtered_comment = df[df['sentiment'] == things]
@@ -287,145 +296,151 @@ async def summary_of_comments(df,things = 'positive'):
 #     return wrapped_text
 
 
-async def generate_pdf(videoid,stats,temp_image,positive,negative):
+# ============================= GENERATE PDF =============================
+
+# async def generate_pdf(videoid,stats,temp_image,positive,negative):
     
-    buffer = BytesIO()
+#     buffer = BytesIO()
 
-    # Create a new canvas
-    c = canvas.Canvas(buffer, pagesize=letter)
+#     # Create a new canvas
+#     c = canvas.Canvas(buffer, pagesize=letter)
 
-    # Set the initial y-coordinate for writing the text
-    y = 700
+#     # Set the initial y-coordinate for writing the text
+#     y = 700
 
-    # Write the video title as the sub title
-    header = "Youtube Video Performance Analysis : {}".format(videoid)
-    c.setFont('Helvetica-Bold', 18)
-    c.drawString(50, y, header)
-    y -= 30
-    c.setFont('Helvetica-Bold', 14)
-    sub_title_1 = "Statistic"
-    c.drawString(50, y, sub_title_1)
-    c.setFont('Helvetica', 12)
-    y -= 30
+#     # Write the video title as the sub title
+#     header = "Youtube Video Performance Analysis : {}".format(videoid)
+#     c.setFont('Helvetica-Bold', 18)
+#     c.drawString(50, y, header)
+#     y -= 30
+#     c.setFont('Helvetica-Bold', 14)
+#     sub_title_1 = "Statistic"
+#     c.drawString(50, y, sub_title_1)
+#     c.setFont('Helvetica', 12)
+#     y -= 30
 
-    # Write specific video stats to the PDF
-    stat_labels = {'title': 'Title', 'viewCount': 'Total View',
-                   'likeCount': 'Total Like', 'commentCount': 'Total Comment'}
-    for key, label in stat_labels.items():
-        value = stats.get(key, '')
-        text = '{}: {}'.format(label, value)
-        c.drawString(50, y, text)
-        y -= 15
-
-
-    y -= 30
-    c.setFont('Helvetica-Bold', 14)
-    sub_title_2 = "Sentiment Analysis"
-    c.drawString(50, y, sub_title_2)
-
-    y -= 30
-    c.setFont('Helvetica', 12)
-
-    # Draw the barchart in the PDF
-    canvas_width = 612  # Width of the canvas (letter size)
-    image_width = 400  # Width of the image
-
-    x = (canvas_width - image_width) / 2
-    c.drawImage(temp_image, x=x, y=290, width=image_width, height=255)
-
-    y -= 260
-    c.setFont('Helvetica-Bold', 12)
-    sub_title_3 = "Summary of Positive Sentiment Comments"
-    c.drawString(50, y, sub_title_3)
-
-    y -= 30
-    c.setFont('Helvetica', 11)
-    y = draw_text_with_wrap(c, positive, 50, y, 500)
-
-    y -= 20
-    c.setFont('Helvetica-Bold', 12)
-    sub_title_4 = "Summary of Negative Sentiment Comments"
-    c.drawString(50, y, sub_title_4)
-
-    y -= 30
-    c.setFont('Helvetica', 11)
-    y = draw_text_with_wrap(c, negative, 50, y, 500)
-
-    c.showPage()
-    c.save()
-
-    buffer.seek(0)
-
-    # Retrieve the PDF content as bytes
-    pdf_content = buffer.getvalue()
-
-    print("PDF generated successfully!")
+#     # Write specific video stats to the PDF
+#     stat_labels = {'title': 'Title', 'viewCount': 'Total View',
+#                    'likeCount': 'Total Like', 'commentCount': 'Total Comment'}
+#     for key, label in stat_labels.items():
+#         value = stats.get(key, '')
+#         text = '{}: {}'.format(label, value)
+#         c.drawString(50, y, text)
+#         y -= 15
 
 
-    # Return the PDF content
-    return pdf_content, temp_image
+#     y -= 30
+#     c.setFont('Helvetica-Bold', 14)
+#     sub_title_2 = "Sentiment Analysis"
+#     c.drawString(50, y, sub_title_2)
+
+#     y -= 30
+#     c.setFont('Helvetica', 12)
+
+#     # Draw the barchart in the PDF
+#     canvas_width = 612  # Width of the canvas (letter size)
+#     image_width = 400  # Width of the image
+
+#     x = (canvas_width - image_width) / 2
+#     c.drawImage(temp_image, x=x, y=290, width=image_width, height=255)
+
+#     y -= 260
+#     c.setFont('Helvetica-Bold', 12)
+#     sub_title_3 = "Summary of Positive Sentiment Comments"
+#     c.drawString(50, y, sub_title_3)
+
+#     y -= 30
+#     c.setFont('Helvetica', 11)
+#     y = draw_text_with_wrap(c, positive, 50, y, 500)
+
+#     y -= 20
+#     c.setFont('Helvetica-Bold', 12)
+#     sub_title_4 = "Summary of Negative Sentiment Comments"
+#     c.drawString(50, y, sub_title_4)
+
+#     y -= 30
+#     c.setFont('Helvetica', 11)
+#     y = draw_text_with_wrap(c, negative, 50, y, 500)
+
+#     c.showPage()
+#     c.save()
+
+#     buffer.seek(0)
+
+#     # Retrieve the PDF content as bytes
+#     pdf_content = buffer.getvalue()
+
+#     print("PDF generated successfully!")
 
 
-async def send_email_with_attachment(videoid,sender_email, sender_password, recipient_email, subject, message, attachment_content):
-    # Create a multipart message object
-    message_obj = MIMEMultipart()
-    message_obj["From"] = sender_email
-    message_obj["To"] = recipient_email
-    message_obj["Subject"] = subject
-
-    # Add the message body
-    message_obj.attach(MIMEText(message, "plain"))
-
-    # Create a MIME base object with the attachment content
-    part = MIMEBase("application", "octet-stream")
-    part.set_payload(attachment_content)
-
-    # Encode the attachment with base64
-    encoders.encode_base64(part)
-
-    # Set the filename and header for the attachment
-    part.add_header(
-        "Content-Disposition",
-        f"attachment; filename=report_{videoid}.pdf"
-    )
-
-    # Attach the attachment to the message object
-    message_obj.attach(part)
-
-    # Connect to the SMTP server (Gmail's SMTP server in this example)
-    with smtplib.SMTP("smtp.gmail.com", 587) as server:
-        # Initiate TLS connection
-        server.starttls()
-        # Login to the email account
-        server.login(sender_email, sender_password)
-        # Send the email
-        server.send_message(message_obj)
-
-    print("Email sent successfully!")
+#     # Return the PDF content
+#     return pdf_content, temp_image
 
 
-async def process_data_and_send_email(url, youtubeapikey, username, recipient_email):
-    parsed_url = urlparse(url)
-    query_params = parse_qs(parsed_url.query)
-    videoid = query_params.get('v', [''])[0]
+# ============================= SEND EMAIL =============================
 
-    subject = f"Hey {username}! Your Report is Out! Check it Now"
-    message = f"We have analyzed your video ({videoid}), and this is the result!"
+# async def send_email_with_attachment(videoid,sender_email, sender_password, recipient_email, subject, message, attachment_content):
+#     # Create a multipart message object
+#     message_obj = MIMEMultipart()
+#     message_obj["From"] = sender_email
+#     message_obj["To"] = recipient_email
+#     message_obj["Subject"] = subject
 
-    youtube = build("youtube", "v3", developerKey= youtubeapikey)
+#     # Add the message body
+#     message_obj.attach(MIMEText(message, "plain"))
 
-    stats = await video_stats(youtube, videoid)
-    df = await comment_threads(youtube, videoID=videoid)
-    temp_image = await sentiment_barchart(df)
-    # positive = await summary_of_comments(df,'positive')
-    # negative = await summary_of_comments(df,'negative')
-    pdf, temp_image_path = await generate_pdf(videoid,stats,temp_image,"positive","negative")
-    await send_email_with_attachment(videoid,'projectwilsen@gmail.com', os.environ.get('email_pass'), recipient_email, subject, message, pdf)
+#     # Create a MIME base object with the attachment content
+#     part = MIMEBase("application", "octet-stream")
+#     part.set_payload(attachment_content)
 
-    # Remove the temporary image file
-    os.remove(temp_image_path)
+#     # Encode the attachment with base64
+#     encoders.encode_base64(part)
 
-    return "Process completed successfully."
+#     # Set the filename and header for the attachment
+#     part.add_header(
+#         "Content-Disposition",
+#         f"attachment; filename=report_{videoid}.pdf"
+#     )
+
+#     # Attach the attachment to the message object
+#     message_obj.attach(part)
+
+#     # Connect to the SMTP server (Gmail's SMTP server in this example)
+#     with smtplib.SMTP("smtp.gmail.com", 587) as server:
+#         # Initiate TLS connection
+#         server.starttls()
+#         # Login to the email account
+#         server.login(sender_email, sender_password)
+#         # Send the email
+#         server.send_message(message_obj)
+
+#     print("Email sent successfully!")
+
+
+# ============================= PROCESS DATA AND SEND EMAIL =============================
+
+# async def process_data_and_send_email(url, youtubeapikey, username, recipient_email):
+#     parsed_url = urlparse(url)
+#     query_params = parse_qs(parsed_url.query)
+#     videoid = query_params.get('v', [''])[0]
+
+#     subject = f"Hey {username}! Your Report is Out! Check it Now"
+#     message = f"We have analyzed your video ({videoid}), and this is the result!"
+
+#     youtube = build("youtube", "v3", developerKey= youtubeapikey)
+
+#     stats = await video_stats(youtube, videoid)
+#     df = await comment_threads(youtube, videoID=videoid)
+#     temp_image = await sentiment_barchart(df)
+#     # positive = await summary_of_comments(df,'positive')
+#     # negative = await summary_of_comments(df,'negative')
+#     pdf, temp_image_path = await generate_pdf(videoid,stats,temp_image,"positive","negative")
+#     await send_email_with_attachment(videoid,'projectwilsen@gmail.com', os.environ.get('email_pass'), recipient_email, subject, message, pdf)
+
+#     # Remove the temporary image file
+#     os.remove(temp_image_path)
+
+#     return "Process completed successfully."
 
 async def get_result(url, youtubeapikey, username, recipient_email):
     parsed_url = urlparse(url)
@@ -436,8 +451,10 @@ async def get_result(url, youtubeapikey, username, recipient_email):
 
     stats = await video_stats(youtube, videoid)
     df = await comment_threads(youtube, videoID=videoid)
-    positive = await summary_of_comments(df,'positive')
-    negative = await summary_of_comments(df,'negative')
+    # positive = await summary_of_comments(df,'positive')
+    positive = "positive"
+    # negative = await summary_of_comments(df,'negative')
+    negative = "negative"
     # neutral = await summary_of_comments(df,'neutral')
     neutral = "neutral"
 
@@ -450,55 +467,56 @@ async def get_result(url, youtubeapikey, username, recipient_email):
     # os.remove(temp_image_path)
 
 
+# === CHAT BOT === (don't use it anymore since already using API: https://ralangchainapp-1-k6134029.deta.app)
 
-def answer_question(question,videoid, videotitle, view, like, comment, total_positive_comment, positive_comment, total_negative_comment, negative_comment, total_neutral_comment, neutral_comment):
+# def answer_question(question,videoid, videotitle, view, like, comment, total_positive_comment, positive_comment, total_negative_comment, negative_comment, total_neutral_comment, neutral_comment):
 
-    template = """
-    You are an intelligent chatbot that act as a senior data consultant. 
-    Here is report of youtube video performance from your client:
-    The video title is {videotitle} with video id is {videoid}. 
+#     template = """
+#     You are an intelligent chatbot that act as a senior data consultant. 
+#     Here is report of youtube video performance from your client:
+#     The video title is {videotitle} with video id is {videoid}. 
 
-    Here are some statistic of the video performance:
-    Total view (people viewing client's video): {view}
-    Total like (people liking client's video): {like}
-    Total comment (people commenting client's video): {comment}
-    Total negative comment (people giving negative comments to client's video): {total_negative_comment}
-    Total positive comment (people giving positive comments to client's video): {total_positive_comment}
-    Total neutral comment (people giving neutral comments to client's video): {total_neutral_comment}
+#     Here are some statistic of the video performance:
+#     Total view (people viewing client's video): {view}
+#     Total like (people liking client's video): {like}
+#     Total comment (people commenting client's video): {comment}
+#     Total negative comment (people giving negative comments to client's video): {total_negative_comment}
+#     Total positive comment (people giving positive comments to client's video): {total_positive_comment}
+#     Total neutral comment (people giving neutral comments to client's video): {total_neutral_comment}
 
-    Positive comments: {positive_comment}
-    Negative comments: {negative_comment} 
-    Neutral comments: {neutral_comment} 
+#     Positive comments: {positive_comment}
+#     Negative comments: {negative_comment} 
+#     Neutral comments: {neutral_comment} 
 
-    Answer the following question with the fact based on the report provided above. Don't hallucinating! Be concise and don't repeating the same thing
-    Question: {question}
-    Answer: your answer here be concise and specific
+#     Answer the following question with the fact based on the report provided above. Don't hallucinating! Be concise and don't repeating the same thing
+#     Question: {question}
+#     Answer: your answer here be concise and specific
     
-    """
+#     """
 
-    prompt = PromptTemplate(
-        template=template, 
-        input_variables=[
-            "question","videoid","videotitle","view","like","comment",
-            "total_positive_comment", "positive_comment", "total_negative_comment",
-            "negative_comment", "total_neutral_comment", "neutral_comment"
-            ]
-        )
+#     prompt = PromptTemplate(
+#         template=template, 
+#         input_variables=[
+#             "question","videoid","videotitle","view","like","comment",
+#             "total_positive_comment", "positive_comment", "total_negative_comment",
+#             "negative_comment", "total_neutral_comment", "neutral_comment"
+#             ]
+#         )
 
-    llm_chain = LLMChain(prompt=prompt, llm=falcon_llm)
+#     llm_chain = LLMChain(prompt=prompt, llm=falcon_llm)
 
-    print("start working")
+#     print("start working")
 
-    answer = llm_chain.run(
-        question=question, videoid = videoid, 
-        videotitle = videotitle, view = view, like = like, 
-        comment = comment, total_positive_comment = total_positive_comment, 
-        positive_comment = positive_comment, total_negative_comment = total_negative_comment,
-        negative_comment = negative_comment, total_neutral_comment = total_neutral_comment,
-        neutral_comment = neutral_comment)
+#     answer = llm_chain.run(
+#         question=question, videoid = videoid, 
+#         videotitle = videotitle, view = view, like = like, 
+#         comment = comment, total_positive_comment = total_positive_comment, 
+#         positive_comment = positive_comment, total_negative_comment = total_negative_comment,
+#         negative_comment = negative_comment, total_neutral_comment = total_neutral_comment,
+#         neutral_comment = neutral_comment)
     
-    print("answer ready")
+#     print("answer ready")
     
-    return answer
+#     return answer
 
 

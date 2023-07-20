@@ -24,7 +24,8 @@ from googleapiclient.discovery import build
 import pandas as pd
 import os
 import io
-import csv
+import json
+# import csv
 
 from dotenv import load_dotenv
 
@@ -34,12 +35,14 @@ from urllib.parse import urlparse, parse_qs
 import asyncio
 from threading import Thread
 
-from maincodes import generate_pdf, send_email_with_attachment
-from maincodes_async_await import process_data_and_send_email, get_result, answer_question
+# from maincodes import generate_pdf, send_email_with_attachment
+from maincodes_async_await import get_result
+# , answer_question (chatbot - now already using API: https://ralangchainapp-1-k6134029.deta.app)
+# , process_data_and_send_email ( send email )
 
-import matplotlib
-matplotlib.use('Agg')  # Set the Agg backend
-import matplotlib.pyplot as plt
+# import matplotlib
+# matplotlib.use('Agg')  # Set the Agg backend
+# import matplotlib.pyplot as plt
 
 load_dotenv()
 
@@ -104,9 +107,20 @@ def logoutpage(request):
     messages.success(request, "Logged Out!")
     return redirect('login')
 
+
 @login_required(login_url='login')
 def home(request):
-    return render(request, 'home.html')
+
+    context = {
+        'user_id': request.user.pk
+    }
+
+    try:
+        latest_result = Result.objects.filter(user=context['user_id']).latest('last_update')
+        return redirect(reverse('chat') + f'?id={latest_result.id}')
+    except Result.DoesNotExist:
+        return render(request, 'home.html', {'context':context})
+ 
 
 # SYNCHRONUS
 
@@ -180,74 +194,17 @@ def home(request):
 #         return render(request, "home.html")
 
 
-# CHATBOT
-# opsi 1
-
-# SOURCE = None
-
-# @login_required(login_url='login')
-# def getoutput(request):
-#     context = {}
-#     if request.method == "POST":
-#         url = request.POST["videoid"]
-
-#         try:
-#             key = ApiKey.objects.get(user=request.user)
-#             youtubeapikey = key.youtube_api_key
-#             if youtubeapikey is None:
-#                 youtubeapikey = os.environ.get('youtubeapikey')
-#         except:
-#             youtubeapikey = os.environ.get('youtubeapikey')
-
-#         username = request.user.username
-#         recipient = User.objects.get(username=username)
-#         recipient_email = recipient.email
-
-#         async def run_async():
-#             stats, df, videoid, positive, negative = await get_result(url, youtubeapikey, username, recipient_email)
-
-#             return {
-#                 'videoid': videoid,
-#                 'videotitle': stats['title'],
-#                 'view': stats['viewCount'],
-#                 'like': stats['likeCount'],
-#                 'comment': stats['commentCount'],
-#                 'total_positive_comment': len(df[df['sentiment'] == 'positive']),
-#                 'total_negative_comment': len(df[df['sentiment'] == 'negative']),
-#                 'total_neutral_comment': len(df[df['sentiment'] == 'neutral']),
-#                 'positive_comment': positive,
-#                 'negative_comment': negative,
-#             }
-
-#         def run_event_loop():
-#             loop = asyncio.new_event_loop()
-#             asyncio.set_event_loop(loop)
-#             context = loop.run_until_complete(run_async())
-#             loop.close()
-
-#             messages.success(request, 'Processing started.')
-#             return context
-
-#         thread = Thread(target=run_event_loop)
-#         thread.start()
-
-#         context = run_event_loop()
-
-#         global SOURCE
-#         SOURCE = context
-#         print(SOURCE)
-
-
-#         return render(request, "home.html", context = context)
-
-#     else:
-#         return render(request, "home.html")
 
 SOURCE = None
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def getoutput(request):
+
+    context = {
+        'user_id': request.user.pk
+    }
+        
     if request.method == "POST":
         url = request.POST["videoid"]
 
@@ -354,83 +311,45 @@ def getoutput(request):
 
 
     else:
-        return render(request, "home.html")
-
-
-# @login_required(login_url='login')
-# def chat(request):
-
-#     # 1. === USING GLOBAL VARIABLE === 
-#     # source = SOURCE
-
-#     # 2. === USING QUERY DB === 
-#     # current_user = request.user
-
-#     # source = Result.objects.filter(
-#     #     user=current_user
-#     # ).latest('created_at')
-
-#     # user=source.user
-#     # videoid=source.videoid
-#     # videotitle= source.videotitle
-#     # view = source.view
-#     # like = source.like
-#     # comment = source.comment
-#     # total_positive_comment = source.total_positive_comment
-#     # positive_comment = source.positive_comment
-#     # total_negative_comment = source.total_negative_comment
-#     # negative_comment = source.negative_comment
-
-#     # Make the result into dictionary and save it as source
-#     # sources = model_to_dict(source)
-
-#     # 3. === USING API === 
-
-#     # token = request.user.auth_token.key
-#     user = request.user.pk
-#     button_id = request.GET.get('button_id')
-
-#     api_url = f'http://127.0.0.1:8000/result/{user}'
-#     response = requests.get(api_url)
-
-#     if response.status_code == 200:
-#         data = response.json()
-#         source = data[-1]
-#         print(source)
-#     else:
-#         print('Error:', response.status_code)
-    
-#     videoid = source['videoid'],
-#     videotitle= source['videotitle'],
-#     view = source['view'],
-#     like = source['like'],
-#     comment = source['comment'],
-#     total_positive_comment = source['total_positive_comment'],
-#     positive_comment = source['positive_comment'],
-#     total_negative_comment = source['total_negative_comment'],
-#     negative_comment = source['negative_comment']
-
-#     if request.method == 'POST':
-#         user_input = request.POST.get('user_input')
-
-
-#         answer = answer_question(
-#             user_input, videoid, videotitle, view, like, comment,
-#             total_positive_comment, positive_comment, 
-#             total_negative_comment, negative_comment)
-
-#         print(answer)
-
-#     return(render(request, "home.html", {"response":answer , "source:source"}))
+        return render(request, "home.html", {'context':context})
 
 
 last_id = None
 @login_required(login_url='login')
 def chat(request):
 
+    context = {
+        'user_id': request.user.pk
+    }
+
+    # 1. === USING GLOBAL VARIABLE === 
+    # source = SOURCE
+
+    # 2. === USING QUERY DB === 
+    # current_user = request.user
+
+    # source = Result.objects.filter(
+    #     user=current_user
+    # ).latest('created_at')
+
+    # user=source.user
+    # videoid=source.videoid
+    # videotitle= source.videotitle
+    # view = source.view
+    # like = source.like
+    # comment = source.comment
+    # total_positive_comment = source.total_positive_comment
+    # positive_comment = source.positive_comment
+    # total_negative_comment = source.total_negative_comment
+    # negative_comment = source.negative_comment
+
+    # Make the result into dictionary and save it as source
+    # sources = model_to_dict(source)
+
+    # 3. === USING API === 
+
     global last_id
 
-    
     user = request.user.pk
     username = request.user
 
@@ -466,18 +385,20 @@ def chat(request):
     else:
         print('Error:', response.status_code)
 
-    
-    videoid = source['videoid'],
-    videotitle= source['videotitle'],
-    view = source['view'],
-    like = source['like'],
-    comment = source['comment'],
-    total_positive_comment = source['total_positive_comment'],
-    positive_comment = source['positive_comment'],
-    total_negative_comment = source['total_negative_comment'],
-    negative_comment = source['negative_comment']
-    total_neutral_comment = source['total_neutral_comment'],
-    neutral_comment = source['neutral_comment']
+
+    # 2. Using Function from maincodes_async_await.py
+
+    # videoid = source['videoid'], 
+    # videotitle= source['videotitle'],
+    # view = source['view'],
+    # like = source['like'],
+    # comment = source['comment'],
+    # total_positive_comment = source['total_positive_comment'],
+    # positive_comment = source['positive_comment'],
+    # total_negative_comment = source['total_negative_comment'],
+    # negative_comment = source['negative_comment']
+    # total_neutral_comment = source['total_neutral_comment'],
+    # neutral_comment = source['neutral_comment']
 
     if request.method == 'POST' or request.method == 'GET':
         user_input = request.POST.get('user_input')
@@ -485,11 +406,45 @@ def chat(request):
 
         if user_input is not None and user_input != '':
             
-            answer = answer_question(
-                user_input, videoid, videotitle, view, like, comment,
-                total_positive_comment, positive_comment, 
-                total_negative_comment, negative_comment,
-                total_neutral_comment, neutral_comment)
+            # 1. Using API 
+            
+            headers = {
+                "accept":"application/json",
+                "Content-Type":"application/json"
+            }
+
+            json_data = {
+                "question": user_input,
+                "videoid" : source['videoid'],
+                "videotitle": source['videotitle'], 
+                "view" : source['view'],
+                "like" : source['like'],
+                "comment" : source['comment'],
+                "total_positive_comment" : source['total_positive_comment'],
+                "positive_comment" : source['positive_comment'],
+                "total_negative_comment" : source['total_negative_comment'],
+                "negative_comment" : source['negative_comment'],
+                "total_neutral_comment" : source['total_neutral_comment'],
+                "neutral_comment" : source['neutral_comment']
+            }
+
+
+            response = requests.post(
+                "https://ralangchainapp-1-k6134029.deta.app/chatbot_chain.chat/run", headers = headers, json = json_data
+            )
+
+            data = response.text
+            parsed_data = json.loads(data)
+            print(parsed_data)
+            answer = parsed_data['output']
+
+#           # 2. Using Function from maincodes_async_await.py
+
+            # answer = answer_question(
+            #   user_input, videoid, videotitle, view, like, comment,
+            #   total_positive_comment, positive_comment,
+            #   total_negative_comment, negative_comment,
+            #   total_neutral_comment, neutral_comment)
 
             print(answer)
         
@@ -500,7 +455,7 @@ def chat(request):
                     We're here to make your experience as engaging and informative as possible!'''
             print(answer)
 
-    return(render(request, "home.html", {"response":answer, "source":source}))
+    return(render(request, "home.html", {"response":answer, "source":source, "context":context}))
 
 
 @api_view(['GET','POST'])
@@ -531,14 +486,6 @@ def result_list_by_user(request,user):
     if request.method == 'GET':
         serializer = ResultSerializer(result, many = True)
         return Response(serializer.data)
-
-    # elif request.method == 'PUT':
-    #     serializer = ResultSerializer(drink, data=request.data)
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         return Response(serializer.data)
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
