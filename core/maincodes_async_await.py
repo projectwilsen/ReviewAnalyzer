@@ -1,7 +1,7 @@
 from googleapiclient.discovery import build
 
-# from textblob import TextBlob
-# import nltk
+from textblob import TextBlob
+import nltk
 
 import pandas as pd
 # import matplotlib.pyplot as plt

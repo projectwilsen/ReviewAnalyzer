@@ -52,10 +52,14 @@ if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.match
 }
 
 // hidden pass
-const pwShowHide = document.querySelectorAll("#pw_hide");
-console.log(pwShowHide)
 
-pwShowHide.forEach(icon =>{
+document.addEventListener('DOMContentLoaded', function() {
+  // Access the 'pwShowHide' variable directly (since it's available globally in the JavaScript context)
+  const pwShowHide = document.querySelectorAll("#pw_hide");
+  console.log(pwShowHide);
+  // Use the 'pwShowHide' variable in your JavaScript code
+
+  pwShowHide.forEach(icon =>{
     icon.addEventListener("click", () =>{
         let getPwInput = icon.parentElement.querySelector("input");
         if(getPwInput.type === "password"){
@@ -66,6 +70,7 @@ pwShowHide.forEach(icon =>{
             icon.classList.replace("uil-eye","uil-eye-slash");
         }
     });
+  });
 });
 
 
@@ -161,13 +166,10 @@ pwShowHide.forEach(icon =>{
 //   }
 // }
 
-alert('Hello from script.js');
 
 document.addEventListener('DOMContentLoaded', function() {
   
   const user = document.body.getAttribute('data-user-id');
-  
-  console.log('User ID:', user);
   
   // Make a fetch request to check if the user has data
 
@@ -207,7 +209,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (confirm("This action will permanently delete your history.\nAre you sure? ")) {
 
               var buttonId = this.parentElement.getAttribute('data-id');
-              var csrfToken = "{{ csrf_token }}";
+              const csrfToken = window.csrfToken;
               console.log(csrfToken)
                                
               fetch(api_url+'/'+buttonId, {
@@ -350,6 +352,8 @@ function showHistory(h) {
             <a href="" class=" close font-nunito absolute pr-4 pt-1 text-slate-600 top-0 right-0 group-hover:text-black group-focus:text-black">
               x
             </a>
+            <input type="hidden" id="csrf-token" value="{% csrf_token %}">
+
           </button>`;
 }
 

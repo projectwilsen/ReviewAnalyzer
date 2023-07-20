@@ -3,6 +3,7 @@ module.exports = {
   content: [
     './core/templates/*.{html,js}',
     './core/static/*.{html,js}',
+    './core/static/dist/script.js',
     './core/**/*.{html,js}',
     "../templates/**/*.{html,js}",
     "../templates/*.{html,js}"
