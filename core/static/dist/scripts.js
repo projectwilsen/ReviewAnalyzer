@@ -1,4 +1,4 @@
-// Navbar Fixed
+// FIXED NAVBAR
 window.onscroll = function () {
     const header = document.querySelector('header');
     const fixedNav = header.offsetTop;
@@ -11,7 +11,7 @@ window.onscroll = function () {
     }
   };
 
-// Hamburger
+// HAMBURGER MENU
 const hamburger = document.querySelector('#hamburger');
 const navMenu = document.querySelector('#nav-menu');
 
@@ -20,7 +20,7 @@ hamburger.addEventListener('click', function () {
   navMenu.classList.toggle('hidden');
 });
 
-// Klik di luar hamburger
+// CLICKED OUTSIDE THE HAMBURGER MENU
 window.addEventListener('click', function (e) {
     if (e.target != hamburger && e.target != navMenu) {
       hamburger.classList.remove('hamburger-active');
@@ -28,9 +28,7 @@ window.addEventListener('click', function (e) {
     }
   });
 
-
-
-// Darkmode toggle
+// DARKMODE TOGGLE
 const darkToggle = document.querySelector('#dark-toggle');
 const html = document.querySelector('html');
 
@@ -44,131 +42,35 @@ darkToggle.addEventListener('click', function () {
   }
 });
 
-// pindahkan posisi toggle sesuai mode
+// CHANGE TOGGLE POSITION BASED ON MODE
 if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
   darkToggle.checked = true;
 } else {
   darkToggle.checked = false;
 }
 
-// hidden pass
+// HIDE PASS
 
-document.addEventListener('DOMContentLoaded', function() {
-  // Access the 'pwShowHide' variable directly (since it's available globally in the JavaScript context)
-  const pwShowHide = document.querySelectorAll("#pw_hide");
-  console.log(pwShowHide);
-  // Use the 'pwShowHide' variable in your JavaScript code
+const pwShowHide = document.querySelectorAll("#pw_hide");
+console.log(pwShowHide)
 
-  pwShowHide.forEach(icon =>{
-    icon.addEventListener("click", () =>{
-        let getPwInput = icon.parentElement.querySelector("input");
-        if(getPwInput.type === "password"){
-            getPwInput.type = "text";
-            icon.classList.replace("uil-eye-slash","uil-eye");
-        }else{
-            getPwInput.type = "password";
-            icon.classList.replace("uil-eye","uil-eye-slash");
-        }
-    });
+pwShowHide.forEach(icon =>{
+  icon.addEventListener("click", () =>{
+    let getPwInput = icon.parentElement.querySelector("input");
+    if(getPwInput.type === "password"){
+      getPwInput.type = "text";
+      icon.classList.replace("uil-eye-slash","uil-eye");
+    }else{
+      getPwInput.type = "password";
+      icon.classList.replace("uil-eye","uil-eye-slash");
+    }
   });
 });
 
-
-// function updateChatBot(chatbot_info){
-  // const elementsToReplace = document.querySelectorAll('.replace');
-  // let replacementContent = [chatbot_info.videoid, chatbot_info.videotitle,
-  //                           chatbot_info.view, chatbot_info.like, chatbot_info.comment]
-
-
-  // elementsToReplace.forEach(function(element, index) {
-  //   var newElement = document.createElement('span');
-  //   newElement.textContent = replacementContent[index];
-
-  //   element.parentNode.replaceChild(newElement, element);
-  // });
-// }
-
-// function showHistory(h) {
-
-//   const djangoDate = new Date(h.last_update);
-//   const currentDate = new Date();
-  
-//   const timeDiff = currentDate.getTime() - djangoDate.getTime();
-  
-//   const secondsDiff = Math.floor(timeDiff / 1000);
-
-//   // Calculate the elapsed days, hours, minutes, and seconds
-//   const days = Math.floor(secondsDiff / (24 * 60 * 60));
-//   const hours = Math.floor((secondsDiff % (24 * 60 * 60)) / (60 * 60));
-//   const minutes = Math.floor((secondsDiff % (60 * 60)) / 60);
-//   const seconds = Math.floor(secondsDiff % 60);
-
-//   return `<button id = "history_button" data-id = ${h.id} class="group text-left w-[380px] h-[100px] relative bg-white/10 p-5 rounded-lg backdrop-filter backdrop-blur-xl shadow-lg hover:bg-white transition duration-300 ease-in-out focus:bg-white">
-
-//             <h1 class="pr-5 font-nunito font-bold text-sm text-slate-100 group-hover:bg-gradient-to-b group-hover:from-red-600 group-hover:to-red-950 group-hover:bg-clip-text group-hover:text-transparent group-focus:bg-gradient-to-b group-focus:from-red-600 group-focus:to-red-950 group-focus:bg-clip-text group-focus:text-transparent">
-//               ${h.videotitle}
-//             </h1>
-         
-//             <h1 class="font-nunito text-sm text-slate-400 mt-1 group-hover:text-black group-focus:text-black ">
-//               ${getTimeAgo(days, hours, minutes, seconds)}
-//             </h1>
-
-//             <a href="" class=" close font-nunito absolute pr-4 pt-1 text-slate-600 top-0 right-0 group-hover:text-black group-focus:text-black">
-//               x
-//             </a>
-//           </button>`;
-// }
-
-// function getTimeAgo(days, hours, minutes, seconds) {
-//   if (days > 0) {
-//     return `${days} days ago`;
-//   } else if (hours > 0) {
-//     return `${hours} hours ago`;
-//   } else if (minutes > 0) {
-//     return `${minutes} minutes ago`;
-//   } else {
-//     return `${seconds} seconds ago`;
-//   }
-// }
-
-// function storeFocusedElement() {
-
-//   const focusedElement = document.activeElement;
-//   console.log(focusedElement)
-//   if (focusedElement) {
-//     const focusedElementDataId = focusedElement.getAttribute('data-id');
-//     localStorage.setItem('focusedElementDataId', focusedElementDataId);
-//   }
-// }
-
-// function storeFocusedElement(id = null) {
-
-//   if (id === null){
-//     const focusedElement = document.activeElement;
-//     console.log(focusedElement)
-//     if (focusedElement) {
-//       const focusedElementDataId = focusedElement.getAttribute('data-id');
-//       localStorage.setItem('focusedElementDataId', focusedElementDataId);
-//     }
-//   } else {
-//     localStorage.setItem('focusedElementDataId', id)
-//   }
-// }
-
-// function restoreFocus() {
-//   const focusedElementDataId = localStorage.getItem('focusedElementDataId');
-//   if (focusedElementDataId) {
-//     const focusedElement = document.querySelector(`[data-id="${focusedElementDataId}"]`);
-//     console.log(focusedElement)
-//     if (focusedElement) {
-//       focusedElement.focus();
-//     }
-//   }
-// }
-
+// MAIN APP
 
 document.addEventListener('DOMContentLoaded', function() {
-  
+
   const user = document.body.getAttribute('data-user-id');
   
   // Make a fetch request to check if the user has data
@@ -277,21 +179,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (currentURL === mainPageURL || currentURL.includes('http://127.0.0.1:8000/chat?id=') ) {
      
-          
-          const firstButton = document.querySelector('#history_button');
-          firstButton.click()
-          //localStorage.setItem('focusedElementDataId',response[0].id)
+          localStorage.setItem('focusedElementDataId',response[0].id)
 
         }
-        else {
-            const chatbot = document.getElementById('chatbot')
-            console.log(chatbot)
-            chatbot.scrollIntoView({
-              behavior: 'auto',
-              block: 'end',
-              inline: 'nearest'
-            });
-        }
+        
+        const chatbot = document.getElementById('chatbot')
+        console.log(chatbot)
+        chatbot.scrollIntoView({
+          behavior: 'auto',
+          block: 'end',
+          inline: 'nearest'
+        });
+        
 
         window.addEventListener('load', restoreFocus(response));
 
@@ -369,25 +268,6 @@ function getTimeAgo(days, hours, minutes, seconds) {
   }
 }
 
-// {% comment %} function storeFocusedElement(response) {
-
-//     const focusedElement = document.activeElement;
-//     if (focusedElement) {
-//       const focusedElementDataId = focusedElement.getAttribute('data-id');
-//       console.log(focusedElementDataId)
-//       if (!focusedElementDataId) {
-//         // Use the default value from response[0].id
-//         const defaultValue = response[0].id;
-//         console.log(defaultValue)
-//         localStorage.setItem('focusedElementDataId', defaultValue);
-//       } else {
-//         // If focusedElementDataId is not null, store it in local storage
-//         localStorage.setItem('focusedElementDataId', focusedElementDataId);
-//       }
-//     }
-
-// } {% endcomment %}
-
 function storeFocusedElement() {
 
   const focusedElement = document.activeElement;
@@ -397,17 +277,6 @@ function storeFocusedElement() {
     localStorage.setItem('focusedElementDataId', focusedElementDataId);
   }
 }
-
-// {% comment %} function restoreFocus() {
-//   const focusedElementDataId = localStorage.getItem('focusedElementDataId');
-//   if (focusedElementDataId) {
-//     const focusedElement = document.querySelector(`[data-id="${focusedElementDataId}"]`);
-//     console.log(focusedElement)
-//     if (focusedElement) {
-//       focusedElement.focus();
-//     }
-//   }
-// } {% endcomment %}
 
 function restoreFocus(response) {
   const focusedElementDataId = localStorage.getItem('focusedElementDataId');

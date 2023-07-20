@@ -107,12 +107,20 @@ def logoutpage(request):
     messages.success(request, "Logged Out!")
     return redirect('login')
 
+
 @login_required(login_url='login')
 def home(request):
+
     context = {
         'user_id': request.user.pk
     }
-    return render(request, 'home.html', {'context':context})
+
+    try:
+        latest_result = Result.objects.filter(user=context['user_id']).latest('last_update')
+        return redirect(reverse('chat') + f'?id={latest_result.id}')
+    except Result.DoesNotExist:
+        return render(request, 'home.html', {'context':context})
+ 
 
 # SYNCHRONUS
 
